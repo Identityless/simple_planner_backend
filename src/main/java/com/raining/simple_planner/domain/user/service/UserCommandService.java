@@ -147,6 +147,8 @@ public class UserCommandService {
         userRepository.save(user1);
         userRepository.save(user2);
 
+        friendRequestQueueRepository.deleteById(requestId);
+
         log.info("친구 요청 수락 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
     }
 
