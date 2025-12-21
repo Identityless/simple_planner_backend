@@ -37,10 +37,11 @@ public final class TokenUtil {
      */
     private static Claims parseClaims(String token) {
         try {
+            String tokenOnly = token.substring(7);
             return Jwts.parser()
                     .verifyWith(key)
                     .build()
-                    .parseSignedClaims(token)
+                    .parseSignedClaims(tokenOnly)
                     .getPayload();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
