@@ -35,6 +35,7 @@ public enum ResultCode {
     // GROUP
     GROUP_REGISTRATION_SUCCESS("P001", "그룹 등록 성공"),
     GROUP_UPDATE_SUCCESS("P002", "그룹 정보 수정 성공"),
+    GROUP_INVITE_SUCCESS("P003", "그룹 유저 초대 성공"),
     
 
     // Role

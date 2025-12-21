@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
 import com.raining.simple_planner.global.result.ResultCode;
 import com.raining.simple_planner.global.result.ResultResponse;
@@ -29,7 +30,8 @@ public class GroupController {
     @PostMapping("/registration")
     public ResponseEntity<ResultResponse> registration(
             @RequestBody GroupRegistrationRequestDTO groupRegistrationRequestDTO,
-            @RequestHeader("Authorization") String authorization) {
+            @RequestHeader("Authorization") String authorization
+        ) {
 
         String userId = TokenUtil.getUserId(authorization);
 
@@ -41,7 +43,8 @@ public class GroupController {
     @PutMapping("/update")
     public ResponseEntity<ResultResponse> putMethodName(
             @RequestBody GroupInfoUpdateRequestDTO groupInfoUpdateRequestDTO,
-            @RequestHeader("Authorization") String authorization) { 
+            @RequestHeader("Authorization") String authorization
+        ) { 
         
         String userId = TokenUtil.getUserId(authorization);
 
@@ -49,5 +52,18 @@ public class GroupController {
         
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_UPDATE_SUCCESS));
     }
+
+    @PostMapping("/invite")
+    public ResponseEntity<ResultResponse> inviteUsers(
+            @RequestBody GroupUserInviteRequestDTO groupUserInviteRequestDTO,
+            @RequestHeader("Authorization") String authorization
+    ) {
+        String userId = TokenUtil.getUserId(authorization);
+
+        groupCommandService.invite(userId, groupUserInviteRequestDTO);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_INVITE_SUCCESS));
+    }
+    
     
 }
