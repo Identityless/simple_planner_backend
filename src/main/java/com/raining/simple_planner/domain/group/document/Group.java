@@ -20,7 +20,7 @@ import lombok.Setter;
 @Document(collection = "group")
 public class Group {
     @Id @Indexed(unique = true)
-    private Integer id;                             // 그룹 ID
+    private String id;                             // 그룹 ID
     private String name;                            // 그룹 이름(GroovyRoom)
     private String ownerId;                         // 그룹 생성자(소유자) ID
     private String description;                     // 그룹 설명

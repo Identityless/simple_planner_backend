@@ -32,6 +32,10 @@ public enum ResultCode {
     FRIEND_LIST_REQUEST_SUCCESS("F003", "친구 리스트 조회 성공"),
     FRIEND_DELETE_SUCCESS("F004", "친구 삭제 성공"),
 
+    // GROUP
+    GROUP_REGISTRATION_SUCCESS("P001", "그룹 등록 성공"),
+    
+
     // Role
     // ROLE_REGISTRATION_SUCCESS("R001", "역할 등록 성공"),
     // ROLE_UPDATE_SUCCESS("R002", "역할 수정 성공"),
