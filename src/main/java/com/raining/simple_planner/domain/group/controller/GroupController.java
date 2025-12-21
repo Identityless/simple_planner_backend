@@ -3,6 +3,7 @@ package com.raining.simple_planner.domain.group.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
 import com.raining.simple_planner.global.result.ResultCode;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RequiredArgsConstructor
@@ -33,6 +36,18 @@ public class GroupController {
         groupCommandService.registration(userId, groupRegistrationRequestDTO);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_REGISTRATION_SUCCESS));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResultResponse> putMethodName(
+            @RequestBody GroupInfoUpdateRequestDTO groupInfoUpdateRequestDTO,
+            @RequestHeader("Authorization") String authorization) { 
+        
+        String userId = TokenUtil.getUserId(authorization);
+
+        groupCommandService.update(userId, groupInfoUpdateRequestDTO);
+        
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_UPDATE_SUCCESS));
     }
     
 }
