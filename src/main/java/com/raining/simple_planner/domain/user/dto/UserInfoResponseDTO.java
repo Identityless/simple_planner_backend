@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @Builder
 public class UserInfoResponseDTO {
-    private String id;
+    private String loginId;
     private String name;
     private String nickName;
     private String userTag;

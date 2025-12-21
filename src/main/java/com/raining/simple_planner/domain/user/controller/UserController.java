@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @PostMapping("/friend/accept")
-    public ResponseEntity<ResultResponse> acceptFriendRequest(@RequestBody int requestId) {
+    public ResponseEntity<ResultResponse> acceptFriendRequest(@RequestBody String requestId) {
 
         userCommandService.acceptFriendRequest(requestId);
 

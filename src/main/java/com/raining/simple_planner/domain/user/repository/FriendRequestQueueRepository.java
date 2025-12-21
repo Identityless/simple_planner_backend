@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.raining.simple_planner.domain.user.document.FriendRequestQueue;
 
 @Repository
-public interface FriendRequestQueueRepository extends MongoRepository<FriendRequestQueue, Integer> {
+public interface FriendRequestQueueRepository extends MongoRepository<FriendRequestQueue, String> {
     public boolean existsByPair1AndPair2(String pair1, String pair2);
     public FriendRequestQueue findByPair1(String pair1);
     public List<String> findAllPair2ByPair1(String pair1);

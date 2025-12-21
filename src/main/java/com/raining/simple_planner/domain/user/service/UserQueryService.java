@@ -26,7 +26,7 @@ public class UserQueryService {
     }
 
     public boolean isIdExists(String id) {
-        return userRepository.existsById(id);
+        return userRepository.existsByLoginId(id);
     }
 
     /**
@@ -35,7 +35,7 @@ public class UserQueryService {
      * @return
      */
     public User getUserById(String id) {
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        return userRepository.findByLoginId(id).orElseThrow(UserNotFoundException::new);
     }
 
     /**
@@ -49,7 +49,7 @@ public class UserQueryService {
         User user = null;
         switch (type) {
             case "id":
-                user = userRepository.findById(value).orElseThrow(UserNotFoundException::new);
+                user = userRepository.findByLoginId(value).orElseThrow(UserNotFoundException::new);
                 break;
             case "tag":
                 user = userRepository.findByUserTag(value).orElseThrow(UserNotFoundException::new);
@@ -75,9 +75,9 @@ public class UserQueryService {
      */
     public FriendListResponseDTO getFriendList(String userId) {
         // 유저 정보 조회
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
 
-        List<UserInfoResponseDTO> friends = userRepository.findAllById(user.getFriends()).stream()
+        List<UserInfoResponseDTO> friends = userRepository.findAllByLoginId(user.getFriends()).stream()
                 .map(User::toResponseDTO)
                 .toList();
         List<UserInfoResponseDTO> friendRequestUsers = findFriendRequestList(userId);
@@ -91,7 +91,7 @@ public class UserQueryService {
 
     private List<UserInfoResponseDTO> findFriendRequestList(String userId) {
         List<String> friendRequestIds = friendRequestQueueRepository.findAllPair2ByPair1(userId);
-        return userRepository.findAllById(friendRequestIds).stream()
+        return userRepository.findAllByLoginId(friendRequestIds).stream()
                 .map(User::toResponseDTO)
                 .toList();
     }
