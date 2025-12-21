@@ -12,6 +12,7 @@ import com.raining.simple_planner.domain.user.document.User;
 import com.raining.simple_planner.domain.user.dto.ChangePasswordRequestDTO;
 import com.raining.simple_planner.domain.user.dto.FriendAddRequestDTO;
 import com.raining.simple_planner.domain.user.dto.FriendDeleteRequestDTO;
+import com.raining.simple_planner.domain.user.dto.UserGroupUpdateDTO;
 import com.raining.simple_planner.domain.user.dto.UserInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.user.dto.UserRegisterDTO;
 import com.raining.simple_planner.domain.user.exception.FriendRequestNotFoundException;
@@ -164,6 +165,23 @@ public class UserCommandService {
 
         log.info("친구 삭제 | User ID : {}, Deleted IDs : {}", userId, friendDeleteRequestDTO.getDeleteIds().toString());
 
+    }
+
+    @Transactional
+    public void addUserGroup(UserGroupUpdateDTO userGroupUpdateDTO) {
+        User user = userRepository.findById(userGroupUpdateDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+
+        user.getGroupKeys().add(userGroupUpdateDTO.getGroupId());
+
+        log.info("유저 그룹 추가 | {}", userGroupUpdateDTO.toString());
+    }
+
+    @Transactional void deleteUserGroup(UserGroupUpdateDTO userGroupUpdateDTO) {
+        User user = userRepository.findById(userGroupUpdateDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+
+        user.getGroupKeys().remove(userGroupUpdateDTO.getGroupId());
+
+        log.info("유저 그룹 삭제 | {}", userGroupUpdateDTO.toString());
     }
 
     private String generateUniqueUserTag() {
