@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.raining.simple_planner.domain.group.document.Group;
 
 @Repository
-public interface GroupRepository extends MongoRepository<Group, Integer> {
+public interface GroupRepository extends MongoRepository<Group, String> {
     
 }

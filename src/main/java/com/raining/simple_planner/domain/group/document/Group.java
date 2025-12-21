@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.raining.simple_planner.global.document.BaseDocument;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Document(collection = "group")
-public class Group {
+public class Group extends BaseDocument{
     @Id @Indexed(unique = true)
     private String id;                             // 그룹 ID
     private String name;                            // 그룹 이름(GroovyRoom)
