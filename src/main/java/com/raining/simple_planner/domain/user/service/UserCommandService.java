@@ -1,5 +1,6 @@
 package com.raining.simple_planner.domain.user.service;
 
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,6 +46,8 @@ public class UserCommandService {
                 .password(passwordEncoder.encode(userRegisterDTO.getPassword()))
                 .userTag(generateUniqueUserTag())
                 .role(Role.ROLE_USER) // 가입 유저의 레벨은 기본적으로 일반사용자
+                .groupKeys(List.of()) // 그룹은 빈 리스트 추가
+                .friends(List.of()) // 친구 목록은 빈 리스트 추가
                 .build();
         
         log.info("회원가입 | ID : {}, NickName : {}, UserTag : {}", user.getId(), user.getNickName(), user.getUserTag());
