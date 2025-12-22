@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupUserInviteAcceptRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
 import com.raining.simple_planner.global.result.ResultCode;
 import com.raining.simple_planner.global.result.ResultResponse;
@@ -19,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PutMapping;
 
-
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/group")
@@ -28,7 +28,7 @@ public class GroupController {
     private final GroupCommandService groupCommandService;
 
     @PostMapping("/registration")
-    public ResponseEntity<ResultResponse> registration(
+    public ResponseEntity<ResultResponse> registration (
             @RequestBody GroupRegistrationRequestDTO groupRegistrationRequestDTO,
             @RequestHeader("Authorization") String authorization
         ) {
@@ -41,7 +41,7 @@ public class GroupController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<ResultResponse> putMethodName(
+    public ResponseEntity<ResultResponse> putMethodName (
             @RequestBody GroupInfoUpdateRequestDTO groupInfoUpdateRequestDTO,
             @RequestHeader("Authorization") String authorization
         ) { 
@@ -54,16 +54,40 @@ public class GroupController {
     }
 
     @PostMapping("/invite")
-    public ResponseEntity<ResultResponse> inviteUsers(
+    public ResponseEntity<ResultResponse> inviteUsers (
             @RequestBody GroupUserInviteRequestDTO groupUserInviteRequestDTO,
             @RequestHeader("Authorization") String authorization
-    ) {
+        ) {
         String userId = TokenUtil.getUserId(authorization);
 
         groupCommandService.invite(userId, groupUserInviteRequestDTO);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_INVITE_SUCCESS));
     }
+
+    @PutMapping("invite/accept")
+    public ResponseEntity<ResultResponse> inviteAccept(
+        @RequestBody GroupUserInviteAcceptRequestDTO groupUserInviteAcceptRequestDTO,
+        @RequestHeader("Authorization") String authorization
+        ) {
+        String userId = TokenUtil.getUserId(authorization);
+
+        groupCommandService.inviteAccept(userId, groupUserInviteAcceptRequestDTO);
+        
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_USER_ADD_SUCCESS));
+    }
     
+    @PutMapping("/removeUser")
+    public ResponseEntity<ResultResponse> removeUser (
+        @RequestBody GroupUserRemoveRequestDTO groupUserRemoveRequestDTO,
+        @RequestHeader("Authorization") String authorization
+        ) {
+        String userId = TokenUtil.getUserId(authorization);
+
+        groupCommandService.removeUser(userId, groupUserRemoveRequestDTO);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_USER_REMOVE_SUCCESS));
+        }
     
+
 }

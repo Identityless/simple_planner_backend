@@ -40,6 +40,7 @@ public enum ExceptionCode {
     GROUP_DELETE_FAIL(500, "P005", "그룹 삭제 실패"),
     GROUP_DUPLICATED(400, "P006", "이미 등록되어있는 그룹입니다"),
     GROUP_NO_PERMISSION(403, "P007", "그룹에 대한 권한이 없습니다"),
+    GROUP_INVITATION_QUEUE_NOT_FOUND(500, "P008", "그룹 초대 내역을 찾을 수 없습니다")
 
     // Role
     // ROLE_NOT_FOUND(400, "R001", "역할을 찾을 수 없습니다."),

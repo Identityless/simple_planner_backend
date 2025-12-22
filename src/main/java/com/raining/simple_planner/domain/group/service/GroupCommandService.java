@@ -10,8 +10,11 @@ import com.raining.simple_planner.domain.group.document.Group;
 import com.raining.simple_planner.domain.group.document.GroupInvitationQueue;
 import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupUserInviteAcceptRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.exception.GroupNotFoundException;
+import com.raining.simple_planner.domain.group.exception.GroupInvitationQueueNotFoundException;
 import com.raining.simple_planner.domain.group.exception.GroupNoPermissionException;
 import com.raining.simple_planner.domain.group.repository.GroupInvitationQueueRepository;
 import com.raining.simple_planner.domain.group.repository.GroupRepository;
@@ -115,5 +118,60 @@ public class GroupCommandService {
         log.info("그룹 초대 큐 저장 완료 | Group ID : {}", group.getId());
     }
 
+    @Transactional
+    public void inviteAccept(String userId, GroupUserInviteAcceptRequestDTO groupUserInviteAcceptRequestDTO) {
+        GroupInvitationQueue queue = groupInvitationQueueRepository
+                .findById(groupUserInviteAcceptRequestDTO.getQueueId())
+                .orElseThrow(GroupInvitationQueueNotFoundException::new);
+        
+        // 실제로 초대 내역에 있는 사용자인지 확인
+        if (!queue.getUserId().equals(userId)) {
+            throw new GroupNoPermissionException();
+        }
+
+        // 그룹에 유저 추가
+        Group group = groupRepository.findById(queue.getGroupId()).orElseThrow(GroupNotFoundException::new);
+        group.getMemberIds().add(userId);
+
+        // 유저에 그룹 추가
+        userCommandService.addUserGroup(UserGroupUpdateDTO.builder()
+                .groupId(group.getId())
+                .userId(userId)
+                .build()
+        );
+
+        // 큐 삭제
+        groupInvitationQueueRepository.delete(queue);
+
+        log.info("그룹 유저 추가 완료 | Group ID : {}, User ID : {}", group.getId(), userId);
+    }
+
+    /**
+     * 그룹에서 유저 삭제
+     * @param userId
+     * @param groupUserRemoveRequestDTO
+     */
+    @Transactional
+    public void removeUser(String userId, GroupUserRemoveRequestDTO groupUserRemoveRequestDTO) {
+        Group group = groupRepository.findById(groupUserRemoveRequestDTO.getGroupId()).orElseThrow(GroupNotFoundException::new);
+
+        // 그룹 오너의 요청인지 체크
+        if (!group.getOwnerId().equals(userId)) {
+            throw new GroupNoPermissionException();
+        }
+
+        // 그룹 및 유저에서 매핑 정보 삭제
+        for (String removeUserId : groupUserRemoveRequestDTO.getRemoveUserIds()) {
+            group.getMemberIds().remove(removeUserId);
+
+            userCommandService.deleteUserGroup(UserGroupUpdateDTO.builder()
+                    .userId(removeUserId)
+                    .groupId(group.getId())
+                    .build()
+            );
+        }
+
+        log.info("그룹 유저 삭제 완료 | Group ID : {}, User IDs : {}", group.getId(), groupUserRemoveRequestDTO.getRemoveUserIds().toString());
+    }
 
 }

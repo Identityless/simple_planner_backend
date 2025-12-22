@@ -152,6 +152,11 @@ public class UserCommandService {
         log.info("친구 요청 수락 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
     }
 
+    /**
+     * 친구 삭제
+     * @param userId
+     * @param friendDeleteRequestDTO
+     */
     @Transactional
     public void deleteFriends(String userId, FriendDeleteRequestDTO friendDeleteRequestDTO) {
         User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
@@ -172,6 +177,10 @@ public class UserCommandService {
 
     }
 
+    /**
+     * 사용자 그룹 추가
+     * @param userGroupUpdateDTO
+     */
     @Transactional
     public void addUserGroup(UserGroupUpdateDTO userGroupUpdateDTO) {
         User user = userRepository.findByLoginId(userGroupUpdateDTO.getUserId()).orElseThrow(UserNotFoundException::new);
@@ -181,7 +190,12 @@ public class UserCommandService {
         log.info("유저 그룹 추가 | {}", userGroupUpdateDTO.toString());
     }
 
-    @Transactional void deleteUserGroup(UserGroupUpdateDTO userGroupUpdateDTO) {
+    /**
+     * 사용자 그룹 삭제
+     * @param userGroupUpdateDTO
+     */
+    @Transactional
+    public void deleteUserGroup(UserGroupUpdateDTO userGroupUpdateDTO) {
         User user = userRepository.findByLoginId(userGroupUpdateDTO.getUserId()).orElseThrow(UserNotFoundException::new);
 
         user.getGroupKeys().remove(userGroupUpdateDTO.getGroupId());
