@@ -17,6 +17,7 @@ import com.raining.simple_planner.domain.user.dto.UserGroupUpdateDTO;
 import com.raining.simple_planner.domain.user.dto.UserInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.user.dto.UserRegisterDTO;
 import com.raining.simple_planner.domain.user.exception.FriendRequestNotFoundException;
+import com.raining.simple_planner.domain.user.exception.UserNoPermissionException;
 import com.raining.simple_planner.domain.user.exception.UserNotFoundException;
 import com.raining.simple_planner.domain.user.repository.FriendRequestQueueRepository;
 import com.raining.simple_planner.domain.user.repository.UserRepository;
@@ -130,12 +131,17 @@ public class UserCommandService {
      * @param requestId
      */
     @Transactional
-    public void acceptFriendRequest(String requestId) {
+    public void acceptFriendRequest(String userId, String requestId) {
         FriendRequestQueue request = friendRequestQueueRepository.findById(requestId)
                 .orElseThrow(FriendRequestNotFoundException::new);
 
         User user1 = userRepository.findByLoginId(request.getPair1()).orElseThrow(UserNotFoundException::new);
         User user2 = userRepository.findByLoginId(request.getPair2()).orElseThrow(UserNotFoundException::new);
+
+        // 권한 체크
+        if (!(user1.getLoginId().equals(userId) || user2.getLoginId().equals(userId))) {
+            throw new UserNoPermissionException();
+        }
 
         // 친구 추가
         if (!user1.getFriends().contains(user2.getLoginId())) {
@@ -147,9 +153,28 @@ public class UserCommandService {
         userRepository.save(user1);
         userRepository.save(user2);
 
-        friendRequestQueueRepository.deleteById(requestId);
+        friendRequestQueueRepository.delete(request);
 
         log.info("친구 요청 수락 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
+    }
+
+    @Transactional
+    public void denyFriendRequest(String userId, String requestId) {
+        FriendRequestQueue request = friendRequestQueueRepository.findById(requestId)
+                .orElseThrow(FriendRequestNotFoundException::new);
+
+        User user1 = userRepository.findByLoginId(request.getPair1()).orElseThrow(UserNotFoundException::new);
+        User user2 = userRepository.findByLoginId(request.getPair2()).orElseThrow(UserNotFoundException::new);
+
+        // 권한 체크
+        if (!(user1.getLoginId().equals(userId) || user2.getLoginId().equals(userId))) {
+            throw new UserNoPermissionException();
+        }
+
+        // 큐 삭제
+        friendRequestQueueRepository.delete(request);
+
+        log.info("친구 요청 거절 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
     }
 
     /**

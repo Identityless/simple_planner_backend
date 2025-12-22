@@ -17,7 +17,7 @@ import lombok.Setter;
 @Document(collection = "friend_request_queue")
 public class FriendRequestQueue extends BaseDocument{
     @Indexed(unique = false)
-    private String pair1;
+    private String pair1;   // 친구 추가 요청 보낸 사람
     @Indexed(unique = false)
-    private String pair2;
+    private String pair2;   // 친구 추가 요청 받은 사람
 }

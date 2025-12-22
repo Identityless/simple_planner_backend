@@ -26,6 +26,7 @@ public enum ExceptionCode {
     USER_AUTH_FAIL(401, "M006", "회원 인증 실패"),
     USER_NICKNAME_DUPLICATED(400, "M007", "회원 닉네임 중복"),
     USER_LOGOUT_FAIL(499, "M008", "회원 로그아웃 실패"),
+    USER_NO_PERMISSION(403, "M009", "권한이 없습니다"),
 
     // FRIEND
     FRIEND_REQUEST_ALREADY_EXISTS(400, "F001", "이미 존재하는 친구 요청입니다."),

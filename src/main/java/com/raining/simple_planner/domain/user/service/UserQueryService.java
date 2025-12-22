@@ -90,7 +90,7 @@ public class UserQueryService {
     }
 
     private List<UserInfoResponseDTO> findFriendRequestList(String userId) {
-        List<String> friendRequestIds = friendRequestQueueRepository.findAllPair2ByPair1(userId);
+        List<String> friendRequestIds = friendRequestQueueRepository.findAllPair1ByPair2(userId);
         return userRepository.findAllByLoginId(friendRequestIds).stream()
                 .map(User::toResponseDTO)
                 .toList();
