@@ -2,7 +2,6 @@ package com.raining.simple_planner.domain.user.document;
 
 import java.util.List;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -23,8 +22,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class User extends BaseDocument {
-    @Id @Indexed(unique = true)
-    private String id;
+    @Indexed(unique = true)
+    private String loginId;
     private String password;
     private Role role;
     private String name;
@@ -45,7 +44,7 @@ public class User extends BaseDocument {
 
     public UserInfoResponseDTO toDetailResponseDTO() {
         return UserInfoResponseDTO.builder()
-            .id(this.id)
+            .loginId(this.loginId)
             .name(this.name)
             .nickName(this.nickName)
             .userTag(this.userTag)

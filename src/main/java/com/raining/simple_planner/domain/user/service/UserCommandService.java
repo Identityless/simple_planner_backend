@@ -1,5 +1,6 @@
 package com.raining.simple_planner.domain.user.service;
 
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,9 +13,11 @@ import com.raining.simple_planner.domain.user.document.User;
 import com.raining.simple_planner.domain.user.dto.ChangePasswordRequestDTO;
 import com.raining.simple_planner.domain.user.dto.FriendAddRequestDTO;
 import com.raining.simple_planner.domain.user.dto.FriendDeleteRequestDTO;
+import com.raining.simple_planner.domain.user.dto.UserGroupUpdateDTO;
 import com.raining.simple_planner.domain.user.dto.UserInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.user.dto.UserRegisterDTO;
 import com.raining.simple_planner.domain.user.exception.FriendRequestNotFoundException;
+import com.raining.simple_planner.domain.user.exception.UserNoPermissionException;
 import com.raining.simple_planner.domain.user.exception.UserNotFoundException;
 import com.raining.simple_planner.domain.user.repository.FriendRequestQueueRepository;
 import com.raining.simple_planner.domain.user.repository.UserRepository;
@@ -38,15 +41,17 @@ public class UserCommandService {
     public void registerUser(UserRegisterDTO userRegisterDTO) {
         // User 등록 로직 구현
         User user = User.builder()
-                .id(userRegisterDTO.getId())
+                .loginId(userRegisterDTO.getId())
                 .name(userRegisterDTO.getName())
                 .nickName(userRegisterDTO.getNickName())
                 .password(passwordEncoder.encode(userRegisterDTO.getPassword()))
                 .userTag(generateUniqueUserTag())
                 .role(Role.ROLE_USER) // 가입 유저의 레벨은 기본적으로 일반사용자
+                .groupKeys(List.of()) // 그룹은 빈 리스트 추가
+                .friends(List.of()) // 친구 목록은 빈 리스트 추가
                 .build();
         
-        log.info("회원가입 | ID : {}, NickName : {}, UserTag : {}", user.getId(), user.getNickName(), user.getUserTag());
+        log.info("회원가입 | ID : {}, NickName : {}, UserTag : {}", user.getLoginId(), user.getNickName(), user.getUserTag());
         userRepository.save(user);
     }
 
@@ -57,7 +62,7 @@ public class UserCommandService {
      */
     @Transactional
     public void changePassword(String userId, ChangePasswordRequestDTO changePasswordRequestDTO) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
 
         // 비밀번호 검사
         if (!passwordEncoder.matches(changePasswordRequestDTO.getCurrentPassword(), user.getPassword())) {
@@ -76,7 +81,7 @@ public class UserCommandService {
      */
     @Transactional
     public void updateUserInfo(String userId, UserInfoUpdateRequestDTO userInfoUpdateRequestDTO) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
 
         // 닉네임 변경
         if (userInfoUpdateRequestDTO.getNickName() != null && !userInfoUpdateRequestDTO.getNickName().isEmpty()) {
@@ -106,7 +111,7 @@ public class UserCommandService {
         }
 
         // 이미 친구인 경우 요청 저장하지 않음
-        User ownUser = userRepository.findById(requestDTO.getOwnId()).orElseThrow(UserNotFoundException::new);
+        User ownUser = userRepository.findByLoginId(requestDTO.getOwnId()).orElseThrow(UserNotFoundException::new);
         if (ownUser.getFriends().contains(requestDTO.getFriendId())) {
             log.info("이미 친구인 사용자입니다. | OwnId : {}, FriendId : {}", requestDTO.getOwnId(), requestDTO.getFriendId());
             return; // 이미 친구인 경우 요청 저장하지 않음
@@ -126,32 +131,63 @@ public class UserCommandService {
      * @param requestId
      */
     @Transactional
-    public void acceptFriendRequest(int requestId) {
+    public void acceptFriendRequest(String userId, String requestId) {
         FriendRequestQueue request = friendRequestQueueRepository.findById(requestId)
                 .orElseThrow(FriendRequestNotFoundException::new);
 
-        User user1 = userRepository.findById(request.getPair1()).orElseThrow(UserNotFoundException::new);
-        User user2 = userRepository.findById(request.getPair2()).orElseThrow(UserNotFoundException::new);
+        User user1 = userRepository.findByLoginId(request.getPair1()).orElseThrow(UserNotFoundException::new);
+        User user2 = userRepository.findByLoginId(request.getPair2()).orElseThrow(UserNotFoundException::new);
+
+        // 권한 체크
+        if (!(user1.getLoginId().equals(userId) || user2.getLoginId().equals(userId))) {
+            throw new UserNoPermissionException();
+        }
 
         // 친구 추가
-        if (!user1.getFriends().contains(user2.getId())) {
-            user1.getFriends().add(user2.getId());
+        if (!user1.getFriends().contains(user2.getLoginId())) {
+            user1.getFriends().add(user2.getLoginId());
         }
-        if (!user2.getFriends().contains(user1.getId())) {
-            user2.getFriends().add(user1.getId());
+        if (!user2.getFriends().contains(user1.getLoginId())) {
+            user2.getFriends().add(user1.getLoginId());
         }
         userRepository.save(user1);
         userRepository.save(user2);
 
-        log.info("친구 요청 수락 | User1 ID : {}, User2 ID : {}", user1.getId(), user2.getId());
+        friendRequestQueueRepository.delete(request);
+
+        log.info("친구 요청 수락 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
     }
 
     @Transactional
+    public void denyFriendRequest(String userId, String requestId) {
+        FriendRequestQueue request = friendRequestQueueRepository.findById(requestId)
+                .orElseThrow(FriendRequestNotFoundException::new);
+
+        User user1 = userRepository.findByLoginId(request.getPair1()).orElseThrow(UserNotFoundException::new);
+        User user2 = userRepository.findByLoginId(request.getPair2()).orElseThrow(UserNotFoundException::new);
+
+        // 권한 체크
+        if (!(user1.getLoginId().equals(userId) || user2.getLoginId().equals(userId))) {
+            throw new UserNoPermissionException();
+        }
+
+        // 큐 삭제
+        friendRequestQueueRepository.delete(request);
+
+        log.info("친구 요청 거절 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
+    }
+
+    /**
+     * 친구 삭제
+     * @param userId
+     * @param friendDeleteRequestDTO
+     */
+    @Transactional
     public void deleteFriends(String userId, FriendDeleteRequestDTO friendDeleteRequestDTO) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
 
         for (String deleteId : friendDeleteRequestDTO.getDeleteIds()) {
-            User friend = userRepository.findById(deleteId).orElseThrow(UserNotFoundException::new);
+            User friend = userRepository.findByLoginId(deleteId).orElseThrow(UserNotFoundException::new);
 
             // 내 친구 목록에서 삭제
             user.getFriends().remove(deleteId);
@@ -164,6 +200,32 @@ public class UserCommandService {
 
         log.info("친구 삭제 | User ID : {}, Deleted IDs : {}", userId, friendDeleteRequestDTO.getDeleteIds().toString());
 
+    }
+
+    /**
+     * 사용자 그룹 추가
+     * @param userGroupUpdateDTO
+     */
+    @Transactional
+    public void addUserGroup(UserGroupUpdateDTO userGroupUpdateDTO) {
+        User user = userRepository.findByLoginId(userGroupUpdateDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+
+        user.getGroupKeys().add(userGroupUpdateDTO.getGroupId());
+
+        log.info("유저 그룹 추가 | {}", userGroupUpdateDTO.toString());
+    }
+
+    /**
+     * 사용자 그룹 삭제
+     * @param userGroupUpdateDTO
+     */
+    @Transactional
+    public void deleteUserGroup(UserGroupUpdateDTO userGroupUpdateDTO) {
+        User user = userRepository.findByLoginId(userGroupUpdateDTO.getUserId()).orElseThrow(UserNotFoundException::new);
+
+        user.getGroupKeys().remove(userGroupUpdateDTO.getGroupId());
+
+        log.info("유저 그룹 삭제 | {}", userGroupUpdateDTO.toString());
     }
 
     private String generateUniqueUserTag() {

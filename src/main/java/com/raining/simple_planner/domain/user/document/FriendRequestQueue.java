@@ -1,8 +1,9 @@
 package com.raining.simple_planner.domain.user.document;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.raining.simple_planner.global.document.BaseDocument;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,11 +15,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Document(collection = "friend_request_queue")
-public class FriendRequestQueue {
-    @Id @Indexed(unique = true)
-    private Integer id;
+public class FriendRequestQueue extends BaseDocument{
     @Indexed(unique = false)
-    private String pair1;
+    private String pair1;   // 친구 추가 요청 보낸 사람
     @Indexed(unique = false)
-    private String pair2;
+    private String pair2;   // 친구 추가 요청 받은 사람
 }

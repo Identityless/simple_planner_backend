@@ -83,11 +83,27 @@ public class UserController {
     }
 
     @PostMapping("/friend/accept")
-    public ResponseEntity<ResultResponse> acceptFriendRequest(@RequestBody int requestId) {
+    public ResponseEntity<ResultResponse> acceptFriendRequest(
+        @RequestHeader("Authorization") String authorization,
+        @RequestBody String requestId
+    ) {
+        String userId = TokenUtil.getUserId(authorization);
 
-        userCommandService.acceptFriendRequest(requestId);
+        userCommandService.acceptFriendRequest(userId, requestId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.FRIEND_REQUEST_ACCEPT_SUCCESS));
+    }
+
+    @PostMapping("/friend/deny")
+    public ResponseEntity<ResultResponse> denyFriendRequest(
+        @RequestHeader("Authorization") String authorization,
+        @RequestBody String requestId
+    ) {
+        String userId = TokenUtil.getUserId(authorization);
+
+        userCommandService.denyFriendRequest(userId, requestId);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.FRIEND_REQUEST_DENY_SUCCESS));
     }
 
     @GetMapping("/friend/list")

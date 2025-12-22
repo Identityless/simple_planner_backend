@@ -1,7 +1,5 @@
 package com.raining.simple_planner.global.result;
 
-
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -31,6 +29,16 @@ public enum ResultCode {
     FRIEND_REQUEST_ACCEPT_SUCCESS("F002", "친구 요청 수락 성공"),
     FRIEND_LIST_REQUEST_SUCCESS("F003", "친구 리스트 조회 성공"),
     FRIEND_DELETE_SUCCESS("F004", "친구 삭제 성공"),
+    FRIEND_REQUEST_DENY_SUCCESS("F005", "친구 요청 거절 성공"),
+
+    // GROUP
+    GROUP_REGISTRATION_SUCCESS("P001", "그룹 등록 성공"),
+    GROUP_UPDATE_SUCCESS("P002", "그룹 정보 수정 성공"),
+    GROUP_INVITE_SUCCESS("P003", "그룹 유저 초대 성공"),
+    GROUP_USER_REMOVE_SUCCESS("P004", "그룹 유저 제거 성공"),
+    GROUP_USER_ADD_SUCCESS("P005", "그룹 유저 추가 성공"),
+    GROUP_INVITE_DENY_SUCCESS("P006", "그룹 초대 거부 성공"),
+    
 
     // Role
     // ROLE_REGISTRATION_SUCCESS("R001", "역할 등록 성공"),
