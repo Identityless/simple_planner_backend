@@ -128,6 +128,7 @@ public class UserCommandService {
 
     /**
      * 친구 요청 수락
+     * @param userId
      * @param requestId
      */
     @Transactional
@@ -158,6 +159,11 @@ public class UserCommandService {
         log.info("친구 요청 수락 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
     }
 
+    /**
+     * 친구 요청 거절
+     * @param userId
+     * @param requestId
+     */
     @Transactional
     public void denyFriendRequest(String userId, String requestId) {
         FriendRequestQueue request = friendRequestQueueRepository.findById(requestId)
@@ -244,7 +250,7 @@ public class UserCommandService {
     private String generateRandomUserTag() {
         // 랜덤한 userTag 생성 로직 구현
         // #000000 형식으로 랜덤 숫자 생성
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         int number = random.nextInt(1000000);
         String userTag = String.format("#%06d", number);
 
