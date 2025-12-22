@@ -118,6 +118,11 @@ public class GroupCommandService {
         log.info("그룹 초대 큐 저장 완료 | Group ID : {}", group.getId());
     }
 
+    /**
+     * 그룹 초대 수락
+     * @param userId
+     * @param groupUserInviteActionRequestDTO
+     */
     @Transactional
     public void inviteAccept(String userId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
         GroupInvitationQueue queue = groupInvitationQueueRepository
@@ -146,6 +151,11 @@ public class GroupCommandService {
         log.info("그룹 유저 추가 완료 | Group ID : {}, User ID : {}", group.getId(), userId);
     }
 
+    /**
+     * 그룹 초대 거절
+     * @param userId
+     * @param groupUserInviteActionRequestDTO
+     */
     @Transactional
     public void inviteDeny(String userId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
         GroupInvitationQueue queue = groupInvitationQueueRepository

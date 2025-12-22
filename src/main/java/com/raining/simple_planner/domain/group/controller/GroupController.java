@@ -27,6 +27,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class GroupController {
     private final GroupCommandService groupCommandService;
 
+    /**
+     * 그룹 등록
+     * @param groupRegistrationRequestDTO
+     * @param authorization
+     * @return
+     */
     @PostMapping("/registration")
     public ResponseEntity<ResultResponse> registration (
             @RequestBody GroupRegistrationRequestDTO groupRegistrationRequestDTO,
@@ -40,6 +46,12 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_REGISTRATION_SUCCESS));
     }
 
+    /**
+     * 그룹 정보 수정
+     * @param groupInfoUpdateRequestDTO
+     * @param authorization
+     * @return
+     */
     @PutMapping("/update")
     public ResponseEntity<ResultResponse> putMethodName (
             @RequestBody GroupInfoUpdateRequestDTO groupInfoUpdateRequestDTO,
@@ -53,6 +65,12 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_UPDATE_SUCCESS));
     }
 
+    /**
+     * 그룹에 유저 초대
+     * @param groupUserInviteRequestDTO
+     * @param authorization
+     * @return
+     */
     @PostMapping("/invite")
     public ResponseEntity<ResultResponse> inviteUsers (
             @RequestBody GroupUserInviteRequestDTO groupUserInviteRequestDTO,
@@ -65,6 +83,12 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_INVITE_SUCCESS));
     }
 
+    /**
+     * 그룹 초대 수락
+     * @param groupUserInviteActionRequestDTO
+     * @param authorization
+     * @return
+     */
     @PutMapping("invite/accept")
     public ResponseEntity<ResultResponse> inviteAccept(
         @RequestBody GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO,
@@ -77,6 +101,12 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_USER_ADD_SUCCESS));
     }
 
+    /**
+     * 그룹 초대 거절
+     * @param groupUserInviteActionRequestDTO
+     * @param authorization
+     * @return
+     */
     @PutMapping("invite/deny")
     public ResponseEntity<ResultResponse> inviteDeny(
         @RequestBody GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO,
@@ -89,6 +119,12 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_INVITE_DENY_SUCCESS));
     }
     
+    /**
+     * 그룹에서 유저 추방
+     * @param groupUserRemoveRequestDTO
+     * @param authorization
+     * @return
+     */
     @PutMapping("/removeUser")
     public ResponseEntity<ResultResponse> removeUser (
         @RequestBody GroupUserRemoveRequestDTO groupUserRemoveRequestDTO,
