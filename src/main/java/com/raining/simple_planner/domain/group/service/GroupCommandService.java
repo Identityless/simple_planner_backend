@@ -10,7 +10,7 @@ import com.raining.simple_planner.domain.group.document.Group;
 import com.raining.simple_planner.domain.group.document.GroupInvitationQueue;
 import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
-import com.raining.simple_planner.domain.group.dto.GroupUserInviteAcceptRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupUserInviteActionRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.exception.GroupNotFoundException;
@@ -119,9 +119,9 @@ public class GroupCommandService {
     }
 
     @Transactional
-    public void inviteAccept(String userId, GroupUserInviteAcceptRequestDTO groupUserInviteAcceptRequestDTO) {
+    public void inviteAccept(String userId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
         GroupInvitationQueue queue = groupInvitationQueueRepository
-                .findById(groupUserInviteAcceptRequestDTO.getQueueId())
+                .findById(groupUserInviteActionRequestDTO.getQueueId())
                 .orElseThrow(GroupInvitationQueueNotFoundException::new);
         
         // 실제로 초대 내역에 있는 사용자인지 확인
@@ -144,6 +144,23 @@ public class GroupCommandService {
         groupInvitationQueueRepository.delete(queue);
 
         log.info("그룹 유저 추가 완료 | Group ID : {}, User ID : {}", group.getId(), userId);
+    }
+
+    @Transactional
+    public void inviteDeny(String userId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
+        GroupInvitationQueue queue = groupInvitationQueueRepository
+                .findById(groupUserInviteActionRequestDTO.getQueueId())
+                .orElseThrow(GroupInvitationQueueNotFoundException::new);
+
+        // 실제로 초대 내역에 있는 사용자인지 확인
+        if (!queue.getUserId().equals(userId)) {
+            throw new GroupNoPermissionException();
+        }
+
+        //큐 삭제
+        groupInvitationQueueRepository.delete(queue);
+
+        log.info("그룹 유저 초대 거부 완료 | Group ID : {}, User ID : {}", queue.getGroupId(), userId);
     }
 
     /**

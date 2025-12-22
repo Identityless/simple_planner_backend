@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
-import com.raining.simple_planner.domain.group.dto.GroupUserInviteAcceptRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupUserInviteActionRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
@@ -67,14 +67,26 @@ public class GroupController {
 
     @PutMapping("invite/accept")
     public ResponseEntity<ResultResponse> inviteAccept(
-        @RequestBody GroupUserInviteAcceptRequestDTO groupUserInviteAcceptRequestDTO,
+        @RequestBody GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO,
         @RequestHeader("Authorization") String authorization
         ) {
         String userId = TokenUtil.getUserId(authorization);
 
-        groupCommandService.inviteAccept(userId, groupUserInviteAcceptRequestDTO);
+        groupCommandService.inviteAccept(userId, groupUserInviteActionRequestDTO);
         
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_USER_ADD_SUCCESS));
+    }
+
+    @PutMapping("invite/deny")
+    public ResponseEntity<ResultResponse> inviteDeny(
+        @RequestBody GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO,
+        @RequestHeader("Authorization") String authorization
+        ) {
+        String userId = TokenUtil.getUserId(authorization);
+
+        groupCommandService.inviteDeny(userId, groupUserInviteActionRequestDTO);
+        
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_INVITE_DENY_SUCCESS));
     }
     
     @PutMapping("/removeUser")

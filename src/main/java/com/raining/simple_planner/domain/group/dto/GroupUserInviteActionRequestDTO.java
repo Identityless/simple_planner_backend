@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GroupUserInviteAcceptRequestDTO {
+public class GroupUserInviteActionRequestDTO {
     private String queueId;
 }
