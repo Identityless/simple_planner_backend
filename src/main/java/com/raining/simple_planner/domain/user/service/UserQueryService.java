@@ -25,8 +25,8 @@ public class UserQueryService {
         return userRepository.existsByNickName(nickName);
     }
 
-    public boolean isIdExists(String id) {
-        return userRepository.existsByLoginId(id);
+    public boolean isLoginIdExists(String LoginId) {
+        return userRepository.existsByLoginId(LoginId);
     }
 
     /**
@@ -34,8 +34,8 @@ public class UserQueryService {
      * @param id
      * @return
      */
-    public User getUserById(String id) {
-        return userRepository.findByLoginId(id).orElseThrow(UserNotFoundException::new);
+    public User getUserByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId).orElseThrow(UserNotFoundException::new);
     }
 
     /**
@@ -70,17 +70,17 @@ public class UserQueryService {
 
     /**
      * 친구 목록 조회
-     * @param userId
+     * @param userLoginId
      * @return
      */
-    public FriendListResponseDTO getFriendList(String userId) {
+    public FriendListResponseDTO getFriendList(String userLoginId) {
         // 유저 정보 조회
-        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findByLoginId(userLoginId).orElseThrow(UserNotFoundException::new);
 
         List<UserInfoResponseDTO> friends = userRepository.findAllByLoginId(user.getFriends()).stream()
                 .map(User::toResponseDTO)
                 .toList();
-        List<UserInfoResponseDTO> friendRequestUsers = findFriendRequestList(userId);
+        List<UserInfoResponseDTO> friendRequestUsers = findFriendRequestList(userLoginId);
 
         FriendListResponseDTO responseDTO = new FriendListResponseDTO();
         responseDTO.setFriends(friends);
@@ -89,11 +89,22 @@ public class UserQueryService {
         return responseDTO;
     }
 
-    private List<UserInfoResponseDTO> findFriendRequestList(String userId) {
-        List<String> friendRequestIds = friendRequestQueueRepository.findAllPair1ByPair2(userId);
+    private List<UserInfoResponseDTO> findFriendRequestList(String userLoginId) {
+        List<String> friendRequestIds = friendRequestQueueRepository.findAllPair1ByPair2(userLoginId);
         return userRepository.findAllByLoginId(friendRequestIds).stream()
                 .map(User::toResponseDTO)
                 .toList();
+    }
+
+    /**
+     * 유저 그룹 아이디 목록 조회
+     * @param userLoginId
+     * @return
+     */
+    public List<String> getUserGroupIds(String userLoginId) {
+        User user = userRepository.findByLoginId(userLoginId).orElseThrow(UserNotFoundException::new);
+
+        return user.getGroupKeys();
     }
 
 }

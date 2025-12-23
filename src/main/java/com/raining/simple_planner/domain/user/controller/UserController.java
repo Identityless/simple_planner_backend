@@ -39,7 +39,7 @@ public class UserController {
         @RequestParam String value,
         @RequestHeader("Authorization") String authorization) {
 
-        User user = userQueryService.getUserById(TokenUtil.getUserId(authorization));
+        User user = userQueryService.getUserByLoginId(TokenUtil.getUserLoginId(authorization));
 
         boolean isOwn = user.getId().equals(value) || user.getUserTag().equals(value);
         
@@ -53,9 +53,9 @@ public class UserController {
         @RequestHeader("Authorization") String authorization,
         @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO) {
 
-        String userId = TokenUtil.getUserId(authorization);
+        String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        userCommandService.changePassword(userId, changePasswordRequestDTO);
+        userCommandService.changePassword(UserLoginId, changePasswordRequestDTO);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.USER_PASSWORD_CHANGE_SUCCESS));
     }
@@ -65,11 +65,11 @@ public class UserController {
         @RequestHeader("Authorization") String authorization,
         @RequestBody UserInfoUpdateRequestDTO userInfoUpdateRequestDTO) {
 
-        String userId = TokenUtil.getUserId(authorization);
+        String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        userCommandService.updateUserInfo(userId, userInfoUpdateRequestDTO);
+        userCommandService.updateUserInfo(UserLoginId, userInfoUpdateRequestDTO);
 
-        UserInfoResponseDTO updatedUserInfo = userQueryService.findUser("id", userId, true);
+        UserInfoResponseDTO updatedUserInfo = userQueryService.findUser("id", UserLoginId, true);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.USER_UPDATE_SUCCESS, updatedUserInfo));
     }
@@ -87,9 +87,9 @@ public class UserController {
         @RequestHeader("Authorization") String authorization,
         @RequestBody String requestId
     ) {
-        String userId = TokenUtil.getUserId(authorization);
+        String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        userCommandService.acceptFriendRequest(userId, requestId);
+        userCommandService.acceptFriendRequest(UserLoginId, requestId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.FRIEND_REQUEST_ACCEPT_SUCCESS));
     }
@@ -99,9 +99,9 @@ public class UserController {
         @RequestHeader("Authorization") String authorization,
         @RequestBody String requestId
     ) {
-        String userId = TokenUtil.getUserId(authorization);
+        String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        userCommandService.denyFriendRequest(userId, requestId);
+        userCommandService.denyFriendRequest(UserLoginId, requestId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.FRIEND_REQUEST_DENY_SUCCESS));
     }
@@ -110,9 +110,9 @@ public class UserController {
     public ResponseEntity<ResultResponse> getFriendList(
         @RequestHeader("Authorization") String authorization) {
 
-        String userId = TokenUtil.getUserId(authorization);
+        String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        FriendListResponseDTO friendList = userQueryService.getFriendList(userId);
+        FriendListResponseDTO friendList = userQueryService.getFriendList(UserLoginId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.FRIEND_LIST_REQUEST_SUCCESS, friendList));
     }
@@ -122,9 +122,9 @@ public class UserController {
         @RequestHeader("Authorization") String authorization,
         @RequestBody FriendDeleteRequestDTO requestDTO) {
 
-        String userId = TokenUtil.getUserId(authorization);
+        String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        userCommandService.deleteFriends(userId, requestDTO);
+        userCommandService.deleteFriends(UserLoginId, requestDTO);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.FRIEND_DELETE_SUCCESS));
     }

@@ -38,31 +38,31 @@ public class GroupCommandService {
      * @param requestDTO
      */
     @Transactional
-    public void registration(String userId, GroupRegistrationRequestDTO requestDTO) {
+    public void registration(String userLoginId, GroupRegistrationRequestDTO requestDTO) {
         Group group = Group.builder()
                 .name(requestDTO.getName())
-                .ownerId(userId)
+                .ownerId(userLoginId)
                 .description(requestDTO.getDescription())
-                .memberIds(List.of(userId))
+                .memberIds(List.of(userLoginId))
                 .planIds(List.of())
                 .whiteBoardContentIds(List.of())
                 .build();
         
         group = groupRepository.save(group);
 
-        log.info("그룹 생성 | Group Owner : {}, Group Name : {}", userId, requestDTO.getName());
+        log.info("그룹 생성 | Group Owner : {}, Group Name : {}", userLoginId, requestDTO.getName());
 
-        userCommandService.addUserGroup(new UserGroupUpdateDTO(userId, group.getId()));
+        userCommandService.addUserGroup(new UserGroupUpdateDTO(userLoginId, group.getId()));
 
     }
 
     /**
      * 그룹 정보 수정
-     * @param userId
+     * @param userLoginId
      * @param groupInfoUpdateRequestDTO
      */
     @Transactional
-    public void update(String userId, GroupInfoUpdateRequestDTO groupInfoUpdateRequestDTO) {
+    public void update(String userLoginId, GroupInfoUpdateRequestDTO groupInfoUpdateRequestDTO) {
         Group group = groupRepository.findById(groupInfoUpdateRequestDTO.getGroupId())
                 .orElseThrow(GroupNotFoundException::new);
 
@@ -81,7 +81,7 @@ public class GroupCommandService {
         // 그룹 주인장 변경
         if (groupInfoUpdateRequestDTO.getOwnerId() != null 
                 && !groupInfoUpdateRequestDTO.getOwnerId().equals("")) {
-            if (!group.getOwnerId().equals(userId)) { // 그룹장과 요청 유저의 id가 일치하지 않는 경우 예외 던짐
+            if (!group.getOwnerId().equals(userLoginId)) { // 그룹장과 요청 유저의 id가 일치하지 않는 경우 예외 던짐
                 throw new GroupNoPermissionException();
             }
             group.setOwnerId(groupInfoUpdateRequestDTO.getOwnerId());
@@ -92,15 +92,15 @@ public class GroupCommandService {
 
     /**
      * 그룹 유저 초대
-     * @param userId
+     * @param userLoginId
      * @param groupUserInviteRequestDTO
      */
     @Transactional
-    public void invite(String userId, GroupUserInviteRequestDTO groupUserInviteRequestDTO) {
+    public void invite(String userLoginId, GroupUserInviteRequestDTO groupUserInviteRequestDTO) {
         Group group = groupRepository.findById(groupUserInviteRequestDTO.getGroupId()).orElseThrow(GroupNotFoundException::new);
 
         // 그룹 오너의 요청인지 체크
-        if (!group.getOwnerId().equals(userId)) {
+        if (!group.getOwnerId().equals(userLoginId)) {
             throw new GroupNoPermissionException();
         }
 
@@ -120,70 +120,70 @@ public class GroupCommandService {
 
     /**
      * 그룹 초대 수락
-     * @param userId
+     * @param userLoginId
      * @param groupUserInviteActionRequestDTO
      */
     @Transactional
-    public void inviteAccept(String userId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
+    public void inviteAccept(String userLoginId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
         GroupInvitationQueue queue = groupInvitationQueueRepository
                 .findById(groupUserInviteActionRequestDTO.getQueueId())
                 .orElseThrow(GroupInvitationQueueNotFoundException::new);
         
         // 실제로 초대 내역에 있는 사용자인지 확인
-        if (!queue.getUserId().equals(userId)) {
+        if (!queue.getUserId().equals(userLoginId)) {
             throw new GroupNoPermissionException();
         }
 
         // 그룹에 유저 추가
         Group group = groupRepository.findById(queue.getGroupId()).orElseThrow(GroupNotFoundException::new);
-        group.getMemberIds().add(userId);
+        group.getMemberIds().add(userLoginId);
 
         // 유저에 그룹 추가
         userCommandService.addUserGroup(UserGroupUpdateDTO.builder()
                 .groupId(group.getId())
-                .userId(userId)
+                .userId(userLoginId)
                 .build()
         );
 
         // 큐 삭제
         groupInvitationQueueRepository.delete(queue);
 
-        log.info("그룹 유저 추가 완료 | Group ID : {}, User ID : {}", group.getId(), userId);
+        log.info("그룹 유저 추가 완료 | Group ID : {}, User ID : {}", group.getId(), userLoginId);
     }
 
     /**
      * 그룹 초대 거절
-     * @param userId
+     * @param userLoginId
      * @param groupUserInviteActionRequestDTO
      */
     @Transactional
-    public void inviteDeny(String userId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
+    public void inviteDeny(String userLoginId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
         GroupInvitationQueue queue = groupInvitationQueueRepository
                 .findById(groupUserInviteActionRequestDTO.getQueueId())
                 .orElseThrow(GroupInvitationQueueNotFoundException::new);
 
         // 실제로 초대 내역에 있는 사용자인지 확인
-        if (!queue.getUserId().equals(userId)) {
+        if (!queue.getUserId().equals(userLoginId)) {
             throw new GroupNoPermissionException();
         }
 
         //큐 삭제
         groupInvitationQueueRepository.delete(queue);
 
-        log.info("그룹 유저 초대 거부 완료 | Group ID : {}, User ID : {}", queue.getGroupId(), userId);
+        log.info("그룹 유저 초대 거부 완료 | Group ID : {}, User ID : {}", queue.getGroupId(), userLoginId);
     }
 
     /**
      * 그룹에서 유저 삭제
-     * @param userId
+     * @param userLoginId
      * @param groupUserRemoveRequestDTO
      */
     @Transactional
-    public void removeUser(String userId, GroupUserRemoveRequestDTO groupUserRemoveRequestDTO) {
+    public void removeUser(String userLoginId, GroupUserRemoveRequestDTO groupUserRemoveRequestDTO) {
         Group group = groupRepository.findById(groupUserRemoveRequestDTO.getGroupId()).orElseThrow(GroupNotFoundException::new);
 
         // 그룹 오너의 요청인지 체크
-        if (!group.getOwnerId().equals(userId)) {
+        if (!group.getOwnerId().equals(userLoginId)) {
             throw new GroupNoPermissionException();
         }
 

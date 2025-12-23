@@ -32,7 +32,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ResultResponse> postMethodName(@RequestBody UserRegisterDTO userRegisterDTO) {
-        if (userQueryService.isIdExists(userRegisterDTO.getId())) {
+        if (userQueryService.isLoginIdExists(userRegisterDTO.getId())) {
             throw new UserIdDupException();
         }
         if (userQueryService.isNickNameExists(userRegisterDTO.getNickName())) {

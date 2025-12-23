@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.raining.simple_planner.domain.group.dto.GroupInfoResponseDTO;
 import com.raining.simple_planner.global.document.BaseDocument;
 
 import lombok.AllArgsConstructor;
@@ -25,4 +26,23 @@ public class Group extends BaseDocument{
     private List<Integer> planIds;                  // 그룹에 속한 플랜 ID 목록
     private List<String> memberIds;                 // 그룹 멤버 ID 목록
     private List<Integer> whiteBoardContentIds;     // 화이트보드 콘텐츠 ID 목록
+
+    public GroupInfoResponseDTO parseResponseDTODetail() {
+        return GroupInfoResponseDTO.builder()
+                .id(this.getId())
+                .name(name)
+                .ownerId(ownerId)
+                .description(description)
+                .planIds(planIds)
+                .memberIds(memberIds)
+                .whiteBoardContentIds(whiteBoardContentIds)
+                .build();
+    }
+
+    public GroupInfoResponseDTO parseResponseDTOSummary() {
+        return GroupInfoResponseDTO.builder()
+                .id(this.getId())
+                .name(name)
+                .build();
+    }
 }

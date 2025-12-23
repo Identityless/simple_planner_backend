@@ -73,10 +73,12 @@ public class JWTTokenService {
         // 토큰을 블랙리스트에 추가
         blackListRepository.save(new BlackList(token));
 
-        // 리프레시 토큰 삭제
-        refreshTokenRepository.deleteById(TokenUtil.getUserId(token));
+        String userLoginId = TokenUtil.getUserLoginId(token);
 
-        log.info("User logged out. Token added to blacklist and refresh token deleted : {}", TokenUtil.getUserId(token));
+        // 리프레시 토큰 삭제
+        refreshTokenRepository.deleteById(userLoginId);
+
+        log.info("User logged out. Token added to blacklist and refresh token deleted : {}", userLoginId);
     }
 
     /**
@@ -85,8 +87,8 @@ public class JWTTokenService {
      */
     @Transactional
     public TokenInfo refreshToken(TokenRefreshRequestDTO requestDTO) {
-        String userId = TokenUtil.getUserId(requestDTO.getAccessToken());
-        RefreshToken storedRefreshToken = refreshTokenRepository.findById(userId)
+        String userLoginId = TokenUtil.getUserLoginId(requestDTO.getAccessToken());
+        RefreshToken storedRefreshToken = refreshTokenRepository.findById(userLoginId)
                 .orElseThrow(TokenRefreshFailException::new);
         
         if (!storedRefreshToken.getTokenValue().equals(requestDTO.getRefreshToken())) {
@@ -94,20 +96,20 @@ public class JWTTokenService {
         }
 
         // 새로운 토큰 생성
-        TokenInfo newToken = generateNewTokens(userId, TokenUtil.getPrimaryRole(requestDTO.getAccessToken()));
+        TokenInfo newToken = generateNewTokens(userLoginId, TokenUtil.getPrimaryRole(requestDTO.getAccessToken()));
 
         // 리프레시 토큰 저장소 업데이트
         storedRefreshToken.setTokenValue(newToken.getRefreshToken());
         saveRefreshToken(storedRefreshToken);
 
-        log.info("토큰 재발급 성공 | ID : {}", userId);
+        log.info("토큰 재발급 성공 | ID : {}", userLoginId);
         return newToken;
     }
 
-    private TokenInfo generateNewTokens(String userId, String role) {
+    private TokenInfo generateNewTokens(String userLoginId, String role) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(
-                    userId,
+                    userLoginId,
                     null,
                     List.of(new SimpleGrantedAuthority(role))
                 );

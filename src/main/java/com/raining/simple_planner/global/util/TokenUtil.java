@@ -49,9 +49,9 @@ public final class TokenUtil {
     }
 
     /**
-     * 사용자 ID (sub) 추출
+     * 사용자 Login ID (sub) 추출
      */
-    public static String getUserId(String token) {
+    public static String getUserLoginId(String token) {
         return parseClaims(token).getSubject();
     }
 

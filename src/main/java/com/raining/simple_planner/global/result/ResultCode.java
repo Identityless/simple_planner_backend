@@ -38,6 +38,8 @@ public enum ResultCode {
     GROUP_USER_REMOVE_SUCCESS("P004", "그룹 유저 제거 성공"),
     GROUP_USER_ADD_SUCCESS("P005", "그룹 유저 추가 성공"),
     GROUP_INVITE_DENY_SUCCESS("P006", "그룹 초대 거부 성공"),
+    GROUP_FIND_SUCCESS("P007", "그룹 조회 성공"),
+    GROUP_LIST_FIND_SUCCESS("P008", "그룹 리스트 조회 성공"),
     
 
     // Role
