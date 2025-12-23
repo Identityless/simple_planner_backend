@@ -14,6 +14,7 @@ import com.raining.simple_planner.domain.group.dto.GroupUserInviteActionRequestD
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.exception.GroupNotFoundException;
+import com.raining.simple_planner.domain.group.exception.GroupAlreadyInvitedException;
 import com.raining.simple_planner.domain.group.exception.GroupInvitationQueueNotFoundException;
 import com.raining.simple_planner.domain.group.exception.GroupNoPermissionException;
 import com.raining.simple_planner.domain.group.repository.GroupInvitationQueueRepository;
@@ -106,6 +107,11 @@ public class GroupCommandService {
 
         List<GroupInvitationQueue> queues = new ArrayList<>();
         for (String invitedUserId : groupUserInviteRequestDTO.getInviteUserIds()) {
+            // 이미 멤버이거나 초대된 내역이 있는 유저인지 확인
+            if (groupInvitationQueueRepository.exexistsByGroupIdAndUserId(group.getId(), invitedUserId)
+                || group.getMemberIds().contains(invitedUserId)) {
+                throw new GroupAlreadyInvitedException();
+            }
             GroupInvitationQueue groupInvitationQueue = GroupInvitationQueue.builder()
                     .groupId(group.getId())
                     .userId(invitedUserId)
