@@ -12,6 +12,8 @@ import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
 import com.raining.simple_planner.domain.group.service.GroupQueryService;
+import com.raining.simple_planner.domain.user.dto.UserGroupUpdateDTO;
+import com.raining.simple_planner.domain.user.service.UserCommandService;
 import com.raining.simple_planner.global.result.ResultCode;
 import com.raining.simple_planner.global.result.ResultResponse;
 import com.raining.simple_planner.global.util.TokenUtil;
@@ -32,6 +34,7 @@ public class GroupController {
 
     private final GroupQueryService groupQueryService;
     private final GroupCommandService groupCommandService;
+    private final UserCommandService userCommandService;
 
     /**
      * 그룹 등록
@@ -44,9 +47,11 @@ public class GroupController {
             @RequestBody GroupRegistrationRequestDTO groupRegistrationRequestDTO,
             @RequestHeader("Authorization") String authorization
     ) {
-        String UserLoginId = TokenUtil.getUserLoginId(authorization);
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
 
-        groupCommandService.registration(UserLoginId, groupRegistrationRequestDTO);
+        String groupId = groupCommandService.registration(userLoginId, groupRegistrationRequestDTO);
+
+        userCommandService.addUserGroup(new UserGroupUpdateDTO(userLoginId, groupId));
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_REGISTRATION_SUCCESS));
     }
@@ -100,7 +105,9 @@ public class GroupController {
     ) {
         String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        groupCommandService.inviteAccept(UserLoginId, groupUserInviteActionRequestDTO);
+        String groupId = groupCommandService.inviteAccept(UserLoginId, groupUserInviteActionRequestDTO);
+
+        userCommandService.addUserGroup(new UserGroupUpdateDTO(UserLoginId, groupId));
         
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_USER_ADD_SUCCESS));
     }
@@ -136,7 +143,11 @@ public class GroupController {
     ) {
         String UserLoginId = TokenUtil.getUserLoginId(authorization);
 
-        groupCommandService.removeUser(UserLoginId, groupUserRemoveRequestDTO);
+        String groupId = groupCommandService.removeUser(UserLoginId, groupUserRemoveRequestDTO);
+
+        for (String removeUserId : groupUserRemoveRequestDTO.getRemoveUserIds()) {
+            userCommandService.deleteUserGroup(new UserGroupUpdateDTO(removeUserId, groupId));
+        }
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_USER_REMOVE_SUCCESS));
     }

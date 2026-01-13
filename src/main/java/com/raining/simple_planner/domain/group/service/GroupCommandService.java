@@ -22,8 +22,6 @@ import com.raining.simple_planner.domain.group.exception.GroupNoPermissionExcept
 import com.raining.simple_planner.domain.group.repository.GroupInvitationQueueRepository;
 import com.raining.simple_planner.domain.group.repository.GroupRepository;
 import com.raining.simple_planner.domain.user.document.User;
-import com.raining.simple_planner.domain.user.dto.UserGroupUpdateDTO;
-import com.raining.simple_planner.domain.user.service.UserCommandService;
 import com.raining.simple_planner.domain.user.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
@@ -33,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class GroupCommandService {
-    private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
     private final GroupRepository groupRepository;
     private final GroupInvitationQueueRepository groupInvitationQueueRepository;
@@ -44,7 +41,7 @@ public class GroupCommandService {
      * @param requestDTO
      */
     @Transactional
-    public void registration(String userLoginId, GroupRegistrationRequestDTO requestDTO) {
+    public String registration(String userLoginId, GroupRegistrationRequestDTO requestDTO) {
         Group group = Group.builder()
                 .name(requestDTO.getName())
                 .ownerId(userLoginId)
@@ -58,8 +55,7 @@ public class GroupCommandService {
 
         log.info("그룹 생성 | Group Owner : {}, Group Name : {}", userLoginId, requestDTO.getName());
 
-        userCommandService.addUserGroup(new UserGroupUpdateDTO(userLoginId, group.getId()));
-
+        return group.getId();
     }
 
     /**
@@ -135,7 +131,7 @@ public class GroupCommandService {
      * @param groupUserInviteActionRequestDTO
      */
     @Transactional
-    public void inviteAccept(String userLoginId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
+    public String inviteAccept(String userLoginId, GroupUserInviteActionRequestDTO groupUserInviteActionRequestDTO) {
         GroupInvitationQueue queue = groupInvitationQueueRepository
                 .findById(groupUserInviteActionRequestDTO.getQueueId())
                 .orElseThrow(GroupInvitationQueueNotFoundException::new);
@@ -149,17 +145,12 @@ public class GroupCommandService {
         Group group = groupRepository.findById(queue.getGroupId()).orElseThrow(GroupNotFoundException::new);
         group.getMemberIds().add(userLoginId);
 
-        // 유저에 그룹 추가
-        userCommandService.addUserGroup(UserGroupUpdateDTO.builder()
-                .groupId(group.getId())
-                .userId(userLoginId)
-                .build()
-        );
-
         // 큐 삭제
         groupInvitationQueueRepository.delete(queue);
 
         log.info("그룹 유저 추가 완료 | Group ID : {}, User ID : {}", group.getId(), userLoginId);
+
+        return group.getId();
     }
 
     /**
@@ -190,7 +181,7 @@ public class GroupCommandService {
      * @param groupUserRemoveRequestDTO
      */
     @Transactional
-    public void removeUser(String userLoginId, GroupUserRemoveRequestDTO groupUserRemoveRequestDTO) {
+    public String removeUser(String userLoginId, GroupUserRemoveRequestDTO groupUserRemoveRequestDTO) {
         Group group = groupRepository.findById(groupUserRemoveRequestDTO.getGroupId()).orElseThrow(GroupNotFoundException::new);
 
         // 그룹 오너의 요청인지 체크
@@ -201,15 +192,11 @@ public class GroupCommandService {
         // 그룹 및 유저에서 매핑 정보 삭제
         for (String removeUserId : groupUserRemoveRequestDTO.getRemoveUserIds()) {
             group.getMemberIds().remove(removeUserId);
-
-            userCommandService.deleteUserGroup(UserGroupUpdateDTO.builder()
-                    .userId(removeUserId)
-                    .groupId(group.getId())
-                    .build()
-            );
         }
 
         log.info("그룹 유저 삭제 완료 | Group ID : {}, User IDs : {}", group.getId(), groupUserRemoveRequestDTO.getRemoveUserIds().toString());
+
+        return group.getId();
     }
 
     public void changeOwner(String userLoginId, GroupOwnerChangeRequestDTO groupOwnerChangeRequestDTO) {
