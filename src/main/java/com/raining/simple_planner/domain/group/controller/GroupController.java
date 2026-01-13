@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupListResponseDTO;
+import com.raining.simple_planner.domain.group.dto.GroupOwnerChangeRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteActionRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
@@ -149,6 +150,18 @@ public class GroupController {
         GroupListResponseDTO response = groupQueryService.findUserGroupList(userLoginId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_LIST_FIND_SUCCESS, response));
+    }
+
+    @PutMapping("/changeOwner")
+    public ResponseEntity<ResultResponse> changeOwner(
+        @RequestBody GroupOwnerChangeRequestDTO groupOwnerChangeRequestDTO,
+        @RequestHeader("Authorization") String authorization
+    ) {
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
+
+        groupCommandService.changeOwner(userLoginId, groupOwnerChangeRequestDTO);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_UPDATE_SUCCESS));
     }
 
 }

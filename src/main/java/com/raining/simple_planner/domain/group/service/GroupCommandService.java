@@ -9,18 +9,22 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raining.simple_planner.domain.group.document.Group;
 import com.raining.simple_planner.domain.group.document.GroupInvitationQueue;
 import com.raining.simple_planner.domain.group.dto.GroupInfoUpdateRequestDTO;
+import com.raining.simple_planner.domain.group.dto.GroupOwnerChangeRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupRegistrationRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteActionRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.exception.GroupNotFoundException;
+import com.raining.simple_planner.domain.group.exception.GroupUserNotContained;
 import com.raining.simple_planner.domain.group.exception.GroupAlreadyInvitedException;
 import com.raining.simple_planner.domain.group.exception.GroupInvitationQueueNotFoundException;
 import com.raining.simple_planner.domain.group.exception.GroupNoPermissionException;
 import com.raining.simple_planner.domain.group.repository.GroupInvitationQueueRepository;
 import com.raining.simple_planner.domain.group.repository.GroupRepository;
+import com.raining.simple_planner.domain.user.document.User;
 import com.raining.simple_planner.domain.user.dto.UserGroupUpdateDTO;
 import com.raining.simple_planner.domain.user.service.UserCommandService;
+import com.raining.simple_planner.domain.user.service.UserQueryService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GroupCommandService {
     private final UserCommandService userCommandService;
+    private final UserQueryService userQueryService;
     private final GroupRepository groupRepository;
     private final GroupInvitationQueueRepository groupInvitationQueueRepository;
 
@@ -205,6 +210,25 @@ public class GroupCommandService {
         }
 
         log.info("그룹 유저 삭제 완료 | Group ID : {}, User IDs : {}", group.getId(), groupUserRemoveRequestDTO.getRemoveUserIds().toString());
+    }
+
+    public void changeOwner(String userLoginId, GroupOwnerChangeRequestDTO groupOwnerChangeRequestDTO) {
+        Group group = groupRepository.findById(groupOwnerChangeRequestDTO.getGroupId()).orElseThrow(GroupNotFoundException::new);
+        User newOwner = userQueryService.getUserByLoginId(groupOwnerChangeRequestDTO.getNewGroupOwnerLoginId());
+
+        // 그룹 오너의 요청인지 체크
+        if (!group.getOwnerId().equals(userLoginId)) {
+            throw new GroupNoPermissionException();
+        }
+
+        // 그룹에 변경 대상 유저가 속해있는지 확인
+        if (!(group.getMemberIds().contains(newOwner.getLoginId()) || newOwner.getGroupKeys().contains(group.getId()))) {
+            throw new GroupUserNotContained();
+        }
+
+        group.setOwnerId(newOwner.getLoginId());
+
+        log.info("그룹장 변경 완료 | Group ID : {}, New Owner ID : {}", group.getId(), newOwner.getLoginId());
     }
 
 }

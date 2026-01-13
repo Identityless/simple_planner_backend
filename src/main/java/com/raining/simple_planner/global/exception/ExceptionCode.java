@@ -43,6 +43,7 @@ public enum ExceptionCode {
     GROUP_NO_PERMISSION(403, "P007", "그룹에 대한 권한이 없습니다"),
     GROUP_INVITATION_QUEUE_NOT_FOUND(500, "P008", "그룹 초대 내역을 찾을 수 없습니다"),
     GROUP_ALREADY_INVITED(400, "P009", "이미 그룹에 초대된 사용자입니다"),
+    GROUP_USER_NOT_CONTAINED(400, "P010", "그룹에 속하지 않은 사용자입니다"),
 
     // Role
     // ROLE_NOT_FOUND(400, "R001", "역할을 찾을 수 없습니다."),
