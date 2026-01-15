@@ -199,6 +199,11 @@ public class GroupCommandService {
         return group.getId();
     }
 
+    /**
+     * 그룹장 변경
+     * @param userLoginId
+     * @param groupOwnerChangeRequestDTO
+     */
     public void changeOwner(String userLoginId, GroupOwnerChangeRequestDTO groupOwnerChangeRequestDTO) {
         Group group = groupRepository.findById(groupOwnerChangeRequestDTO.getGroupId()).orElseThrow(GroupNotFoundException::new);
         User newOwner = userQueryService.getUserByLoginId(groupOwnerChangeRequestDTO.getNewGroupOwnerLoginId());
@@ -216,6 +221,21 @@ public class GroupCommandService {
         group.setOwnerId(newOwner.getLoginId());
 
         log.info("그룹장 변경 완료 | Group ID : {}, New Owner ID : {}", group.getId(), newOwner.getLoginId());
+    }
+
+    public List<String> deleteGroup(String userLoginId, String groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(GroupNotFoundException::new);
+
+        // 그룹 오너의 요청인지 체크
+        if (!group.getOwnerId().equals(userLoginId)) {
+            throw new GroupNoPermissionException();
+        }
+        // 그룹 삭제
+        groupRepository.delete(group);
+
+        log.info("그룹 삭제 완료 | Group ID : {}", group.getId());
+
+        return group.getMemberIds();
     }
 
 }

@@ -19,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Document(collection = "group")
-public class Group extends BaseDocument{
+public class Group extends BaseDocument {
     private String name;                            // 그룹 이름(GroovyRoom)
     private String ownerId;                         // 그룹 생성자(소유자) ID
     private String description;                     // 그룹 설명

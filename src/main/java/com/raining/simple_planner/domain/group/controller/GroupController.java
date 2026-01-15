@@ -20,8 +20,12 @@ import com.raining.simple_planner.global.util.TokenUtil;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -173,6 +177,22 @@ public class GroupController {
         groupCommandService.changeOwner(userLoginId, groupOwnerChangeRequestDTO);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_UPDATE_SUCCESS));
+    }
+
+    @DeleteMapping("/delete/{groupId}")
+    public ResponseEntity<ResultResponse> deleteGroup(
+        @RequestHeader("Authorization") String authorization,
+        @PathVariable(value = "groupId") String groupId
+    ) {
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
+
+        List<String> usersOfGroup = groupCommandService.deleteGroup(userLoginId, groupId);
+
+        for (String removeUserId : usersOfGroup) {
+            userCommandService.deleteUserGroup(new UserGroupUpdateDTO(removeUserId, groupId));
+        }
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_DELETE_SUCCESS));
     }
 
 }
