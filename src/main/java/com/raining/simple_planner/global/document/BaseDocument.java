@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BaseDocument {
+public abstract class BaseDocument {
     @Id @Indexed(unique = true)
     private String id;
     @CreatedDate
