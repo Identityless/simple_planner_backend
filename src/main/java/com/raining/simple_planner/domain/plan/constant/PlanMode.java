@@ -11,4 +11,13 @@ public enum PlanMode {
 
     private final String code;
     private final String description;
+
+    public static PlanMode fromCode(String code) {
+        for (PlanMode mode : PlanMode.values()) {
+            if (mode.getCode().equals(code)) {
+                return mode;
+            }
+        }
+        throw new IllegalArgumentException("Invalid PlanMode code: " + code);
+    }
 }
