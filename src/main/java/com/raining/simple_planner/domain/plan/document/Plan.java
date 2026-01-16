@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.raining.simple_planner.domain.plan.constant.PlanMode;
 import com.raining.simple_planner.domain.plan.constant.TimeTableMode;
+import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
 import com.raining.simple_planner.domain.plan.record.DateTable;
 import com.raining.simple_planner.global.document.BaseDocument;
 
@@ -26,7 +27,7 @@ public class Plan extends BaseDocument {
     private  LocalDateTime startDate;              // 플랜 시작일
     private  LocalDateTime endDate;                // 플랜 종료일
     private  LocalDateTime deadline;               // 플랜 응답 마감일
-    private  PlanMode mode;                        // 플랜 모드(참석 가능일 지정 / 참석 불가일 지정)
+    private  PlanMode planMode;                    // 플랜 모드(참석 가능일 지정 / 참석 불가일 지정)
     private  TimeTableMode timeTableMode;          // 시간표 모드(날짜만 / 날짜+시간)
     private final Map<String, DateTable> dateTables;    // 사용자 ID 별 날짜-시간표 기록
 
@@ -37,7 +38,7 @@ public class Plan extends BaseDocument {
             LocalDateTime startDate,
             LocalDateTime endDate,
             LocalDateTime deadline,
-            PlanMode mode,
+            PlanMode planMode,
             TimeTableMode timeTableMode,
             Map<String, DateTable> dateTables
     ) {
@@ -47,36 +48,26 @@ public class Plan extends BaseDocument {
         this.startDate = startDate;
         this.endDate = endDate;
         this.deadline = deadline;
-        this.mode = mode;
+        this.planMode = planMode;
         this.timeTableMode = timeTableMode;
         this.dateTables = dateTables != null ? dateTables : new HashMap<>();
     }
 
-    public static Plan initPlan(
-            String groupId,
-            String title,
-            String description,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            LocalDateTime deadline,
-            PlanMode mode,
-            TimeTableMode timeTableMode,
-            List<String> memberIds
-    ) {
+    public static Plan initPlan(PlanRegistrationRequestDTO requestDTO, List<String> memberLoginIds) {
         Map<String, DateTable> tables = new HashMap<>();
-        for (String memberId : memberIds) {
-            tables.put(memberId, DateTable.empty());
+        for (String memberLoginId : memberLoginIds) {
+            tables.put(memberLoginId, DateTable.empty());
         }
 
         return new Plan(
-                groupId,
-                title,
-                description,
-                startDate,
-                endDate,
-                deadline,
-                mode,
-                timeTableMode,
+                requestDTO.groupId(),
+                requestDTO.title(),
+                requestDTO.description(),
+                LocalDateTime.parse(requestDTO.startDate()),
+                LocalDateTime.parse(requestDTO.endDate()),
+                LocalDateTime.parse(requestDTO.deadline()),
+                PlanMode.fromCode(requestDTO.planMode()),
+                TimeTableMode.fromCode(requestDTO.timeTableMode()),
                 tables
         );
     }
