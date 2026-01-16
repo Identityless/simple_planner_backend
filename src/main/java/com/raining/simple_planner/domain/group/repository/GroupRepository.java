@@ -7,5 +7,6 @@ import com.raining.simple_planner.domain.group.document.Group;
 
 @Repository
 public interface GroupRepository extends MongoRepository<Group, String> {
-    
+    // 그룹장인지 확인
+    boolean existsByIdAndOwnerId(String id, String ownerId);
 }

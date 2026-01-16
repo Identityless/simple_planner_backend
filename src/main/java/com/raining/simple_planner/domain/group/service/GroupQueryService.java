@@ -50,4 +50,18 @@ public class GroupQueryService {
 
         return new GroupListResponseDTO(groupInfos, queues);
     }
+
+    /**
+     * 그룹 유저 목록 조회
+     * @param groupId
+     * @return
+     */
+    public List<String> findGroupUserList(String groupId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(GroupNotFoundException::new);
+        return group.getMemberIds();
+    }
+
+    public boolean isGroupOwner(String groupId, String userLoginId) {
+        return groupRepository.existsByIdAndOwnerId(groupId, userLoginId);
+    }
 }
