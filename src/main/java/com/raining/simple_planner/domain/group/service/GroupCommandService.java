@@ -15,7 +15,7 @@ import com.raining.simple_planner.domain.group.dto.GroupUserInviteActionRequestD
 import com.raining.simple_planner.domain.group.dto.GroupUserInviteRequestDTO;
 import com.raining.simple_planner.domain.group.dto.GroupUserRemoveRequestDTO;
 import com.raining.simple_planner.domain.group.exception.GroupNotFoundException;
-import com.raining.simple_planner.domain.group.exception.GroupUserNotContained;
+import com.raining.simple_planner.domain.group.exception.GroupUserNotContainedException;
 import com.raining.simple_planner.domain.group.exception.GroupAlreadyInvitedException;
 import com.raining.simple_planner.domain.group.exception.GroupInvitationQueueNotFoundException;
 import com.raining.simple_planner.domain.group.exception.GroupNoPermissionException;
@@ -215,7 +215,7 @@ public class GroupCommandService {
 
         // 그룹에 변경 대상 유저가 속해있는지 확인
         if (!(group.getMemberIds().contains(newOwner.getLoginId()) || newOwner.getGroupKeys().contains(group.getId()))) {
-            throw new GroupUserNotContained();
+            throw new GroupUserNotContainedException();
         }
 
         group.setOwnerId(newOwner.getLoginId());
