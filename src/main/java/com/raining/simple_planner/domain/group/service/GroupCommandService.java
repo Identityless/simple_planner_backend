@@ -223,6 +223,12 @@ public class GroupCommandService {
         log.info("그룹장 변경 완료 | Group ID : {}, New Owner ID : {}", group.getId(), newOwner.getLoginId());
     }
 
+
+    /**
+     * 그룹 삭제
+     * @param userLoginId
+     * @param groupId
+     */
     public List<String> deleteGroup(String userLoginId, String groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(GroupNotFoundException::new);
 
@@ -236,6 +242,14 @@ public class GroupCommandService {
         log.info("그룹 삭제 완료 | Group ID : {}", group.getId());
 
         return group.getMemberIds();
+    }
+
+    public void addPlan(String groupId, String planId) {
+        Group group = groupRepository.findById(groupId).orElseThrow(GroupNotFoundException::new);
+
+        group.getPlanIds().add(planId);
+
+        log.info("그룹에 플랜 추가 | Group ID : {}, Plan ID : {}", group.getId(), planId);
     }
 
 }

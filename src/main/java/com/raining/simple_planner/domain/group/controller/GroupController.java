@@ -156,6 +156,11 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_USER_REMOVE_SUCCESS));
     }
     
+    /**
+     * 사용자의 그룹 리스트 조회
+     * @param authorization
+     * @return
+     */
     @GetMapping("/list")
     public ResponseEntity<ResultResponse> findListByUser(
         @RequestHeader("Authorization") String authorization
@@ -167,6 +172,12 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_LIST_FIND_SUCCESS, response));
     }
 
+    /**
+     * 그룹장 변경
+     * @param groupOwnerChangeRequestDTO
+     * @param authorization
+     * @return
+     */
     @PutMapping("/changeOwner")
     public ResponseEntity<ResultResponse> changeOwner(
         @RequestBody GroupOwnerChangeRequestDTO groupOwnerChangeRequestDTO,
@@ -179,6 +190,12 @@ public class GroupController {
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GROUP_UPDATE_SUCCESS));
     }
 
+    /**
+     * 그룹 삭제
+     * @param authorization
+     * @param groupId
+     * @return
+     */
     @DeleteMapping("/delete/{groupId}")
     public ResponseEntity<ResultResponse> deleteGroup(
         @RequestHeader("Authorization") String authorization,
