@@ -40,6 +40,10 @@ public enum ResultCode {
     GROUP_INVITE_DENY_SUCCESS("P006", "그룹 초대 거부 성공"),
     GROUP_FIND_SUCCESS("P007", "그룹 조회 성공"),
     GROUP_LIST_FIND_SUCCESS("P008", "그룹 리스트 조회 성공"),
+    GROUP_DELETE_SUCCESS("P009", "그룹 삭제 성공"),
+
+    // PLAN
+    PLAN_REGISTRATION_SUCCESS("PL001", "플랜 등록 성공"),
     
 
     // Role
