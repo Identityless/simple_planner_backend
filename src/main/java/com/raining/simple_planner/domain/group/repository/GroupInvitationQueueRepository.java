@@ -10,5 +10,5 @@ import com.raining.simple_planner.domain.group.document.GroupInvitationQueue;
 @Repository
 public interface GroupInvitationQueueRepository extends MongoRepository<GroupInvitationQueue, String>{
     List<GroupInvitationQueue> findAllByUserId(String userId);
-    Boolean exexistsByGroupIdAndUserId(String groupId, String userId);
+    Boolean existsByGroupIdAndUserId(String groupId, String userId);
 }

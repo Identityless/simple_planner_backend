@@ -109,7 +109,7 @@ public class GroupCommandService {
         List<GroupInvitationQueue> queues = new ArrayList<>();
         for (String invitedUserId : groupUserInviteRequestDTO.getInviteUserIds()) {
             // 이미 멤버이거나 초대된 내역이 있는 유저인지 확인
-            if (groupInvitationQueueRepository.exexistsByGroupIdAndUserId(group.getId(), invitedUserId)
+            if (groupInvitationQueueRepository.existsByGroupIdAndUserId(group.getId(), invitedUserId)
                 || group.getMemberIds().contains(invitedUserId)) {
                 throw new GroupAlreadyInvitedException();
             }
