@@ -44,6 +44,10 @@ public enum ResultCode {
 
     // PLAN
     PLAN_REGISTRATION_SUCCESS("PL001", "플랜 등록 성공"),
+    PLAN_UPDATE_SUCCESS("PL002", "플랜 수정 성공"),
+    PLAN_DELETE_SUCCESS("PL003", "플랜 삭제 성공"),
+    PLAN_FIND_SUCCESS("PL004", "플랜 조회 성공"),
+    PLAN_LIST_FIND_SUCCESS("PL005", "플랜 리스트 조회 성공"),
     
 
     // Role

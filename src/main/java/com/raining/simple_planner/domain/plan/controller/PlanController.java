@@ -2,6 +2,7 @@ package com.raining.simple_planner.domain.plan.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
+import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.service.PlanCommandService;
 import com.raining.simple_planner.domain.plan.service.PlanQueryService;
 import com.raining.simple_planner.global.result.ResultCode;
@@ -45,5 +47,24 @@ public class PlanController {
         groupCommandService.addPlan(requestDTO.groupId(), planId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_REGISTRATION_SUCCESS));
+    }
+
+    /**
+     * 플랜 수정
+     * @param requestDTO
+     * @param authorization
+     * @return
+     */
+    @PutMapping("/update")
+    public ResponseEntity<ResultResponse> update(
+        @RequestBody PlanUpdateRequestDTO requestDTO,
+        @RequestHeader("Authorization") String authorization
+    ) {
+        // 사용자 로그인 ID 추출
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
+
+        planCommandService.update(requestDTO, userLoginId);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_UPDATE_SUCCESS));
     }
 }

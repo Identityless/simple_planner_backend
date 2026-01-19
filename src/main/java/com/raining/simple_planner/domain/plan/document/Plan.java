@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.raining.simple_planner.domain.plan.constant.PlanMode;
 import com.raining.simple_planner.domain.plan.constant.TimeTableMode;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
+import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.record.DateTable;
 import com.raining.simple_planner.global.document.BaseDocument;
 
@@ -51,6 +52,19 @@ public class Plan extends BaseDocument {
         this.planMode = planMode;
         this.timeTableMode = timeTableMode;
         this.dateTables = dateTables != null ? dateTables : new HashMap<>();
+    }
+
+    public void updatePlan(PlanUpdateRequestDTO requestDTO) {
+        this.title = requestDTO.title();
+        this.description = requestDTO.description();
+        this.startDate = LocalDateTime.parse(requestDTO.startDate());
+        this.endDate = LocalDateTime.parse(requestDTO.endDate());
+        this.deadline = LocalDateTime.parse(requestDTO.deadline());
+        this.planMode = PlanMode.fromCode(requestDTO.planMode());
+        this.timeTableMode = TimeTableMode.fromCode(requestDTO.timeTableMode());
+        if (requestDTO.reset()) {
+            this.dateTables.clear();
+        }
     }
 
     public static Plan initPlan(PlanRegistrationRequestDTO requestDTO, List<String> memberLoginIds) {

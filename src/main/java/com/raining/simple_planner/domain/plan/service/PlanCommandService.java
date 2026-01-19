@@ -1,5 +1,6 @@
 package com.raining.simple_planner.domain.plan.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raining.simple_planner.domain.group.service.GroupQueryService;
 import com.raining.simple_planner.domain.plan.document.Plan;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
+import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.exception.PlanNoPermissionException;
 import com.raining.simple_planner.domain.plan.repository.PlanRepository;
 
@@ -43,5 +45,25 @@ public class PlanCommandService {
         log.info("플랜 등록 | Plan ID : {}, Group ID : {}", plan.getId(), requestDTO.groupId());
         
         return plan.getId();
+    }
+
+    /**
+     * 플랜 수정
+     * @param requestDTO
+     * @param userLoginId
+     */
+    @Transactional
+    public void update(PlanUpdateRequestDTO requestDTO, String userLoginId) {
+        // TODO : 플랜 수정 기능 구현 예정
+        Plan plan = planRepository.findById(requestDTO.id()).orElseThrow(PlanNoPermissionException::new);
+        
+        // 그룹장인지 확인
+        if (!groupQueryService.isGroupOwner(plan.getGroupId(), userLoginId)) {
+            throw new PlanNoPermissionException();
+        }
+
+        plan.updatePlan(requestDTO);
+
+        log.info("플랜 수정 | Plan ID : {}, Group ID : {}", plan.getId(), plan.getGroupId());
     }
 }
