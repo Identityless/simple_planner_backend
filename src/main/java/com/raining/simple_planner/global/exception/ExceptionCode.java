@@ -41,7 +41,17 @@ public enum ExceptionCode {
     GROUP_DELETE_FAIL(500, "P005", "그룹 삭제 실패"),
     GROUP_DUPLICATED(400, "P006", "이미 등록되어있는 그룹입니다"),
     GROUP_NO_PERMISSION(403, "P007", "그룹에 대한 권한이 없습니다"),
-    GROUP_INVITATION_QUEUE_NOT_FOUND(500, "P008", "그룹 초대 내역을 찾을 수 없습니다")
+    GROUP_INVITATION_QUEUE_NOT_FOUND(500, "P008", "그룹 초대 내역을 찾을 수 없습니다"),
+    GROUP_ALREADY_INVITED(400, "P009", "이미 그룹에 초대된 사용자입니다"),
+    GROUP_USER_NOT_CONTAINED(400, "P010", "그룹에 속하지 않은 사용자입니다"),
+
+    // PLAN
+    PLAN_NOT_FOUND(400, "PL001", "플랜을 찾을 수 없습니다."),
+    PLAN_REGISTRATION_FAIL(500, "PL002", "플랜 등록 실패"),
+    PLAN_UPDATE_FAIL(500, "PL003", "플랜 수정 실패"),
+    PLAN_DELETE_FAIL(500, "PL004", "플랜 삭제 실패"),
+    PLAN_LIST_REQUEST_FAIL(500, "PL005", "플랜 리스트 요청 실패"),
+    PLAN_NO_PERMISSION(403, "PL006", "플랜에 대한 권한이 없습니다"),
 
     // Role
     // ROLE_NOT_FOUND(400, "R001", "역할을 찾을 수 없습니다."),

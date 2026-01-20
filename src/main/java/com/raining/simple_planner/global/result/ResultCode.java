@@ -38,6 +38,19 @@ public enum ResultCode {
     GROUP_USER_REMOVE_SUCCESS("P004", "그룹 유저 제거 성공"),
     GROUP_USER_ADD_SUCCESS("P005", "그룹 유저 추가 성공"),
     GROUP_INVITE_DENY_SUCCESS("P006", "그룹 초대 거부 성공"),
+    GROUP_FIND_SUCCESS("P007", "그룹 조회 성공"),
+    GROUP_LIST_FIND_SUCCESS("P008", "그룹 리스트 조회 성공"),
+    GROUP_DELETE_SUCCESS("P009", "그룹 삭제 성공"),
+
+    // PLAN
+    PLAN_REGISTRATION_SUCCESS("PL001", "플랜 등록 성공"),
+    PLAN_UPDATE_SUCCESS("PL002", "플랜 수정 성공"),
+    PLAN_DELETE_SUCCESS("PL003", "플랜 삭제 성공"),
+    PLAN_FIND_SUCCESS("PL004", "플랜 조회 성공"),
+    PLAN_LIST_FIND_SUCCESS("PL005", "플랜 리스트 조회 성공"),
+    PLAN_DATE_INFO_ADD_SUCCESS("PL006", "플랜 날짜-시간표 정보 추가 성공"),
+    PLAN_DATE_TABLE_RESET_SUCCESS("PL007", "플랜 날짜-시간표 정보 초기화 성공"),
+    PLAN_PERSONAL_DATE_TABLE_RESET_SUCCESS("PL008", "플랜 개인 날짜-시간표 정보 초기화 성공"),
     
 
     // Role

@@ -57,12 +57,12 @@ public class UserCommandService {
 
     /**
      * 비밀번호 변경
-     * @param userId
+     * @param userLoginId
      * @param newPassword
      */
     @Transactional
-    public void changePassword(String userId, ChangePasswordRequestDTO changePasswordRequestDTO) {
-        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
+    public void changePassword(String userLoginId, ChangePasswordRequestDTO changePasswordRequestDTO) {
+        User user = userRepository.findByLoginId(userLoginId).orElseThrow(UserNotFoundException::new);
 
         // 비밀번호 검사
         if (!passwordEncoder.matches(changePasswordRequestDTO.getCurrentPassword(), user.getPassword())) {
@@ -71,17 +71,17 @@ public class UserCommandService {
 
         user.setPassword(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
         userRepository.save(user);
-        log.info("비밀번호 변경 | ID : {}", userId);
+        log.info("비밀번호 변경 | ID : {}", userLoginId);
     }
 
     /**
      * 유저 정보 수정
-     * @param userId
+     * @param userLoginId
      * @param userInfoUpdateRequestDTO
      */
     @Transactional
-    public void updateUserInfo(String userId, UserInfoUpdateRequestDTO userInfoUpdateRequestDTO) {
-        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
+    public void updateUserInfo(String userLoginId, UserInfoUpdateRequestDTO userInfoUpdateRequestDTO) {
+        User user = userRepository.findByLoginId(userLoginId).orElseThrow(UserNotFoundException::new);
 
         // 닉네임 변경
         if (userInfoUpdateRequestDTO.getNickName() != null && !userInfoUpdateRequestDTO.getNickName().isEmpty()) {
@@ -94,7 +94,7 @@ public class UserCommandService {
         }
 
         userRepository.save(user);
-        log.info("유저 정보 수정 | ID : {}", userId);
+        log.info("유저 정보 수정 | ID : {}", userLoginId);
     }
 
     /**
@@ -128,10 +128,11 @@ public class UserCommandService {
 
     /**
      * 친구 요청 수락
+     * @param userLoginId
      * @param requestId
      */
     @Transactional
-    public void acceptFriendRequest(String userId, String requestId) {
+    public void acceptFriendRequest(String userLoginId, String requestId) {
         FriendRequestQueue request = friendRequestQueueRepository.findById(requestId)
                 .orElseThrow(FriendRequestNotFoundException::new);
 
@@ -139,7 +140,7 @@ public class UserCommandService {
         User user2 = userRepository.findByLoginId(request.getPair2()).orElseThrow(UserNotFoundException::new);
 
         // 권한 체크
-        if (!(user1.getLoginId().equals(userId) || user2.getLoginId().equals(userId))) {
+        if (!(user1.getLoginId().equals(userLoginId) || user2.getLoginId().equals(userLoginId))) {
             throw new UserNoPermissionException();
         }
 
@@ -158,8 +159,13 @@ public class UserCommandService {
         log.info("친구 요청 수락 | User1 ID : {}, User2 ID : {}", user1.getLoginId(), user2.getLoginId());
     }
 
+    /**
+     * 친구 요청 거절
+     * @param userLoginId
+     * @param requestId
+     */
     @Transactional
-    public void denyFriendRequest(String userId, String requestId) {
+    public void denyFriendRequest(String userLoginId, String requestId) {
         FriendRequestQueue request = friendRequestQueueRepository.findById(requestId)
                 .orElseThrow(FriendRequestNotFoundException::new);
 
@@ -167,7 +173,7 @@ public class UserCommandService {
         User user2 = userRepository.findByLoginId(request.getPair2()).orElseThrow(UserNotFoundException::new);
 
         // 권한 체크
-        if (!(user1.getLoginId().equals(userId) || user2.getLoginId().equals(userId))) {
+        if (!(user1.getLoginId().equals(userLoginId) || user2.getLoginId().equals(userLoginId))) {
             throw new UserNoPermissionException();
         }
 
@@ -179,12 +185,12 @@ public class UserCommandService {
 
     /**
      * 친구 삭제
-     * @param userId
+     * @param userLoginId
      * @param friendDeleteRequestDTO
      */
     @Transactional
-    public void deleteFriends(String userId, FriendDeleteRequestDTO friendDeleteRequestDTO) {
-        User user = userRepository.findByLoginId(userId).orElseThrow(UserNotFoundException::new);
+    public void deleteFriends(String userLoginId, FriendDeleteRequestDTO friendDeleteRequestDTO) {
+        User user = userRepository.findByLoginId(userLoginId).orElseThrow(UserNotFoundException::new);
 
         for (String deleteId : friendDeleteRequestDTO.getDeleteIds()) {
             User friend = userRepository.findByLoginId(deleteId).orElseThrow(UserNotFoundException::new);
@@ -192,18 +198,18 @@ public class UserCommandService {
             // 내 친구 목록에서 삭제
             user.getFriends().remove(deleteId);
             // 상대방 친구 목록에서 나 삭제
-            friend.getFriends().remove(userId);
+            friend.getFriends().remove(userLoginId);
 
             userRepository.save(friend);
         }
         userRepository.save(user);
 
-        log.info("친구 삭제 | User ID : {}, Deleted IDs : {}", userId, friendDeleteRequestDTO.getDeleteIds().toString());
+        log.info("친구 삭제 | User ID : {}, Deleted IDs : {}", userLoginId, friendDeleteRequestDTO.getDeleteIds().toString());
 
     }
 
     /**
-     * 사용자 그룹 추가
+     * 사용자에 그룹 추가
      * @param userGroupUpdateDTO
      */
     @Transactional
@@ -216,7 +222,7 @@ public class UserCommandService {
     }
 
     /**
-     * 사용자 그룹 삭제
+     * 사용자에 그룹 삭제
      * @param userGroupUpdateDTO
      */
     @Transactional
@@ -244,7 +250,7 @@ public class UserCommandService {
     private String generateRandomUserTag() {
         // 랜덤한 userTag 생성 로직 구현
         // #000000 형식으로 랜덤 숫자 생성
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         int number = random.nextInt(1000000);
         String userTag = String.format("#%06d", number);
 
