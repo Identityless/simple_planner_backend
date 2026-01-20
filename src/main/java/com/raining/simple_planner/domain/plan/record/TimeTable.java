@@ -4,14 +4,17 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TimeTable {
 
-    private final List<TimeSlot> timeSlots;
+    private List<TimeSlot> timeSlots;
 
-    protected TimeTable(List<TimeSlot> timeSlots) {
+    public TimeTable(List<TimeSlot> timeSlots) {
         this.timeSlots = timeSlots != null ? timeSlots : new ArrayList<>();
     }
 

@@ -24,14 +24,15 @@ import lombok.Setter;
 public class Plan extends BaseDocument {
 
     private final String groupId;                  // 소속 그룹 ID
-    private  String title;                         // 플랜 제목
-    private  String description;                   // 플랜 설명
-    private  LocalDateTime startDate;              // 플랜 시작일
-    private  LocalDateTime endDate;                // 플랜 종료일
-    private  LocalDateTime deadline;               // 플랜 응답 마감일
-    private  PlanMode planMode;                    // 플랜 모드(참석 가능일 지정 / 참석 불가일 지정)
-    private  TimeTableMode timeTableMode;          // 시간표 모드(날짜만 / 날짜+시간)
+    private String title;                         // 플랜 제목
+    private String description;                   // 플랜 설명
+    private LocalDateTime startDate;              // 플랜 시작일
+    private LocalDateTime endDate;                // 플랜 종료일
+    private LocalDateTime deadline;               // 플랜 응답 마감일
+    private PlanMode planMode;                    // 플랜 모드(참석 가능일 지정 / 참석 불가일 지정)
+    private TimeTableMode timeTableMode;          // 시간표 모드(날짜만 / 날짜+시간)
     private final Map<String, DateTable> dateTables;    // 사용자 ID 별 날짜-시간표 기록
+    private boolean isCommitted;                  // 플랜 확정 여부
 
     protected Plan(
             String groupId,
@@ -42,7 +43,8 @@ public class Plan extends BaseDocument {
             LocalDateTime deadline,
             PlanMode planMode,
             TimeTableMode timeTableMode,
-            Map<String, DateTable> dateTables
+            Map<String, DateTable> dateTables,
+            boolean isCommitted
     ) {
         this.groupId = groupId;
         this.title = title;
@@ -53,6 +55,7 @@ public class Plan extends BaseDocument {
         this.planMode = planMode;
         this.timeTableMode = timeTableMode;
         this.dateTables = dateTables != null ? dateTables : new HashMap<>();
+        this.isCommitted = isCommitted;
     }
 
     /**
@@ -108,6 +111,13 @@ public class Plan extends BaseDocument {
     }
 
     /**
+     * 플랜 확정
+     */
+    public void commitPlan() {
+        this.isCommitted = true;
+    }
+
+    /**
      * 새 플랜 생성
      * @param requestDTO
      * @param memberLoginIds
@@ -128,7 +138,8 @@ public class Plan extends BaseDocument {
                 LocalDateTime.parse(requestDTO.deadline()),
                 PlanMode.fromCode(requestDTO.planMode()),
                 TimeTableMode.fromCode(requestDTO.timeTableMode()),
-                tables
+                tables,
+                false
         );
     }
 }

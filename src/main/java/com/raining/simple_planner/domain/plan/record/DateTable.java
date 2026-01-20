@@ -4,18 +4,20 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import com.raining.simple_planner.domain.plan.constant.TimeTableMode;
 import com.raining.simple_planner.domain.plan.dto.PlanAddDateInfoRequestDTO;
 
-import lombok.Getter;
-
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DateTable {
 
-    private final Map<LocalDate, TimeTable> timeTables;
+    private Map<LocalDate, TimeTable> timeTables;
 
-    // 생성자 1개
-    protected DateTable(Map<LocalDate, TimeTable> timeTables) {
+    public DateTable(Map<LocalDate, TimeTable> timeTables) {
         this.timeTables = timeTables != null ? timeTables : new HashMap<>();
     }
 
