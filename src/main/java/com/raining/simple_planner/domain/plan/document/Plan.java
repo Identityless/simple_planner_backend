@@ -100,6 +100,14 @@ public class Plan extends BaseDocument {
     }
 
     /**
+     * 특정 유저의 날짜-시간표 정보 초기화
+     * @param userLoginId
+     */
+    public void clearPersonalDateTable(String userLoginId) {
+        this.dateTables.remove(userLoginId);
+    }
+
+    /**
      * 새 플랜 생성
      * @param requestDTO
      * @param memberLoginIds

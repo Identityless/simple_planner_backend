@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raining.simple_planner.domain.group.service.GroupQueryService;
 import com.raining.simple_planner.domain.plan.document.Plan;
+import com.raining.simple_planner.domain.plan.dto.PlanAddDateInfoRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.exception.PlanNoPermissionException;
@@ -66,6 +67,12 @@ public class PlanCommandService {
         log.info("플랜 수정 | Plan ID : {}, Group ID : {}", plan.getId(), plan.getGroupId());
     }
 
+    /**
+     * 플랜 날짜-시간표 정보 전체 초기화
+     * @param planId
+     * @param userLoginId
+     */
+    @Transactional
     public void resetDateTable(String planId, String userLoginId) {
         Plan plan = planRepository.findById(planId).orElseThrow(PlanNoPermissionException::new);
         
@@ -78,5 +85,47 @@ public class PlanCommandService {
         plan.clearDateTable();
 
         log.info("플랜 날짜-시간표 정보 초기화 | Plan ID : {}, Group ID : {}", plan.getId(), plan.getGroupId());
+    }
+
+    /**
+     * 플랜 개인 날짜-시간표 정보 초기화
+     * @param planId
+     * @param userLoginId
+     */
+    @Transactional
+    public void resetPersonalDateTable(String planId, String userLoginId) {
+        Plan plan = planRepository.findById(planId).orElseThrow(PlanNoPermissionException::new);
+
+        // 그룹 멤버인지 확인
+        List<String> groupMembers = groupQueryService.findGroupUserList(plan.getGroupId());
+        if (!groupMembers.contains(userLoginId)) {
+            throw new PlanNoPermissionException();
+        }
+
+        // 개인 날짜-시간표 정보 초기화
+        plan.getDateTables().remove(userLoginId);
+
+        log.info("플랜 개인 날짜-시간표 정보 초기화 | Plan ID : {}, User ID : {}", plan.getId(), userLoginId);
+    }
+
+    /**
+     * 플랜 날짜-시간표 정보 추가
+     * @param requestDTO
+     * @param userLoginId
+     */
+    @Transactional
+    public void addDateInfo(PlanAddDateInfoRequestDTO requestDTO, String userLoginId) {
+        Plan plan = planRepository.findById(requestDTO.planId()).orElseThrow(PlanNoPermissionException::new);
+
+        // 그룹 멤버인지 확인
+        List<String> groupMembers = groupQueryService.findGroupUserList(plan.getGroupId());
+        if (!groupMembers.contains(userLoginId)) {
+            throw new PlanNoPermissionException();
+        }
+
+        // 날짜-시간표 정보 추가
+        plan.addDateInfo(userLoginId, requestDTO);
+
+        log.info("플랜 날짜-시간표 정보 추가 | Plan ID : {}, User ID : {}", plan.getId(), userLoginId);
     }
 }

@@ -48,6 +48,9 @@ public enum ResultCode {
     PLAN_DELETE_SUCCESS("PL003", "플랜 삭제 성공"),
     PLAN_FIND_SUCCESS("PL004", "플랜 조회 성공"),
     PLAN_LIST_FIND_SUCCESS("PL005", "플랜 리스트 조회 성공"),
+    PLAN_DATE_INFO_ADD_SUCCESS("PL006", "플랜 날짜-시간표 정보 추가 성공"),
+    PLAN_DATE_TABLE_RESET_SUCCESS("PL007", "플랜 날짜-시간표 정보 초기화 성공"),
+    PLAN_PERSONAL_DATE_TABLE_RESET_SUCCESS("PL008", "플랜 개인 날짜-시간표 정보 초기화 성공"),
     
 
     // Role

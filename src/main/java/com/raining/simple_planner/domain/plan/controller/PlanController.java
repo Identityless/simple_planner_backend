@@ -1,6 +1,7 @@
 package com.raining.simple_planner.domain.plan.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
+import com.raining.simple_planner.domain.plan.dto.PlanAddDateInfoRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.service.PlanCommandService;
@@ -66,5 +68,62 @@ public class PlanController {
         planCommandService.update(requestDTO, userLoginId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_UPDATE_SUCCESS));
+    }
+
+    /**
+     * 플랜 전체 날짜-시간표 정보 초기화
+     * @param planId
+     * @param authorization
+     * @return
+     */
+    @PutMapping("/reset/{planId}")
+    public ResponseEntity<ResultResponse> resetDateTable(
+        @PathVariable String planId,
+        @RequestHeader("Authorization") String authorization
+    ) {
+        // 사용자 로그인 ID 추출
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
+
+        planCommandService.resetDateTable(planId, userLoginId);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_DATE_TABLE_RESET_SUCCESS));
+    }
+
+    /**
+     * 플랜 개인 날짜-시간표 정보 초기화
+     * @param planId
+     * @param authorization
+     * @return
+     */
+    @PutMapping("/reset/personal/{planId}")
+    public ResponseEntity<ResultResponse> resetPersonalDateTable(
+        @PathVariable String planId,
+        @RequestHeader("Authorization") String authorization
+    ) {
+        // 사용자 로그인 ID 추출
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
+
+        planCommandService.resetPersonalDateTable(planId, userLoginId);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_PERSONAL_DATE_TABLE_RESET_SUCCESS));
+    }
+
+    /**
+     * 플랜 날짜-시간표 정보 추가
+     * @param requestDTO
+     * @param authorization
+     * @return
+     */
+    @PostMapping("/addDateInfo")
+    public ResponseEntity<ResultResponse> addDateInfo(
+        @RequestBody PlanAddDateInfoRequestDTO requestDTO,
+        @RequestHeader("Authorization") String authorization
+    ) {
+        // 사용자 로그인 ID 추출
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
+
+        planCommandService.addDateInfo(requestDTO, userLoginId);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_DATE_INFO_ADD_SUCCESS));
     }
 }
