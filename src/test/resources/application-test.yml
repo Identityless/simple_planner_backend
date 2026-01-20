@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: simple_planner
+  mongodb:
+    uri: mongodb+srv://raining:%40Sksl13579%21@raining.9eolhdp.mongodb.net/simple_planner?appName=raining
