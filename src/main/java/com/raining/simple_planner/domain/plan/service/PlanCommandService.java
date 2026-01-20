@@ -1,6 +1,5 @@
 package com.raining.simple_planner.domain.plan.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -54,7 +53,6 @@ public class PlanCommandService {
      */
     @Transactional
     public void update(PlanUpdateRequestDTO requestDTO, String userLoginId) {
-        // TODO : 플랜 수정 기능 구현 예정
         Plan plan = planRepository.findById(requestDTO.id()).orElseThrow(PlanNoPermissionException::new);
         
         // 그룹장인지 확인
@@ -62,8 +60,23 @@ public class PlanCommandService {
             throw new PlanNoPermissionException();
         }
 
+        // 플랜 수정
         plan.updatePlan(requestDTO);
 
         log.info("플랜 수정 | Plan ID : {}, Group ID : {}", plan.getId(), plan.getGroupId());
+    }
+
+    public void resetDateTable(String planId, String userLoginId) {
+        Plan plan = planRepository.findById(planId).orElseThrow(PlanNoPermissionException::new);
+        
+        // 그룹장인지 확인
+        if (!groupQueryService.isGroupOwner(plan.getGroupId(), userLoginId)) {
+            throw new PlanNoPermissionException();
+        }
+
+        // 날짜-시간표 정보 초기화
+        plan.clearDateTable();
+
+        log.info("플랜 날짜-시간표 정보 초기화 | Plan ID : {}, Group ID : {}", plan.getId(), plan.getGroupId());
     }
 }

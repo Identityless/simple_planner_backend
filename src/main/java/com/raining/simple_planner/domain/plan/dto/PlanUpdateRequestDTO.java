@@ -8,8 +8,7 @@ public record PlanUpdateRequestDTO(
     String endDate,
     String deadline,
     String planMode,
-    String timeTableMode,
-    boolean reset
+    String timeTableMode
 ) {
     
 }

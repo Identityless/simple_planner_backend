@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.raining.simple_planner.domain.plan.constant.PlanMode;
 import com.raining.simple_planner.domain.plan.constant.TimeTableMode;
+import com.raining.simple_planner.domain.plan.dto.PlanAddDateInfoRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.record.DateTable;
@@ -54,7 +55,16 @@ public class Plan extends BaseDocument {
         this.dateTables = dateTables != null ? dateTables : new HashMap<>();
     }
 
+    /**
+     * 플랜 정보 업데이트
+     * @param requestDTO
+     */
     public void updatePlan(PlanUpdateRequestDTO requestDTO) {
+        // 플랜 모드 또는 시간표 모드가 변경될 경우 날짜-시간표 정보 초기화
+        if (this.timeTableMode != TimeTableMode.fromCode(requestDTO.timeTableMode())
+            || this.planMode != PlanMode.fromCode(requestDTO.planMode())) {
+            clearDateTable();
+        }
         this.title = requestDTO.title();
         this.description = requestDTO.description();
         this.startDate = LocalDateTime.parse(requestDTO.startDate());
@@ -62,11 +72,39 @@ public class Plan extends BaseDocument {
         this.deadline = LocalDateTime.parse(requestDTO.deadline());
         this.planMode = PlanMode.fromCode(requestDTO.planMode());
         this.timeTableMode = TimeTableMode.fromCode(requestDTO.timeTableMode());
-        if (requestDTO.reset()) {
-            this.dateTables.clear();
+    }
+
+    /**
+     * 유저-시간표 정보 추가
+     * @param userLoginId
+     * @param requestDTO
+     */
+    public void addDateInfo(String userLoginId, PlanAddDateInfoRequestDTO requestDTO) {
+        DateTable dateTable = this.dateTables.get(userLoginId);
+        // 해당 사용자의 날짜-시간표가 있을 경우에만 추가
+        if (dateTable != null) {
+            dateTable.addTimeInfo(requestDTO, this.timeTableMode);
+        }
+        else { // 없을 경우 새로 생성 후 추가
+            dateTable = DateTable.empty();
+            dateTable.addTimeInfo(requestDTO, this.timeTableMode);
+            this.dateTables.put(userLoginId, dateTable);
         }
     }
 
+    /**
+     * 유저-시간표 정보 초기화
+     */
+    public void clearDateTable() {
+        this.dateTables.clear();
+    }
+
+    /**
+     * 새 플랜 생성
+     * @param requestDTO
+     * @param memberLoginIds
+     * @return
+     */
     public static Plan initPlan(PlanRegistrationRequestDTO requestDTO, List<String> memberLoginIds) {
         Map<String, DateTable> tables = new HashMap<>();
         for (String memberLoginId : memberLoginIds) {
