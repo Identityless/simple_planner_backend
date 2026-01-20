@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raining.simple_planner.domain.group.service.GroupQueryService;
 import com.raining.simple_planner.domain.plan.document.Plan;
 import com.raining.simple_planner.domain.plan.dto.PlanAddDateInfoRequestDTO;
+import com.raining.simple_planner.domain.plan.dto.PlanDeleteRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.exception.PlanNoPermissionException;
@@ -127,5 +128,19 @@ public class PlanCommandService {
         plan.addDateInfo(userLoginId, requestDTO);
 
         log.info("플랜 날짜-시간표 정보 추가 | Plan ID : {}, User ID : {}", plan.getId(), userLoginId);
+    }
+
+    @Transactional
+    public void deletePlan(PlanDeleteRequestDTO requestDTO, String userLoginId) {
+        Plan plan = planRepository.findById(requestDTO.planId()).orElseThrow(PlanNoPermissionException::new);
+
+        // 그룹장인지 확인
+        if (!groupQueryService.isGroupOwner(plan.getGroupId(), userLoginId)) {
+            throw new PlanNoPermissionException();
+        }
+        
+        planRepository.delete(plan);
+
+        log.info("플랜 삭제 | Plan ID : {}, Group ID : {}", plan.getId(), plan.getGroupId());
     }
 }

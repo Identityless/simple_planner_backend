@@ -1,6 +1,7 @@
 package com.raining.simple_planner.domain.plan.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.raining.simple_planner.domain.group.service.GroupCommandService;
 import com.raining.simple_planner.domain.plan.dto.PlanAddDateInfoRequestDTO;
+import com.raining.simple_planner.domain.plan.dto.PlanDeleteRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanRegistrationRequestDTO;
 import com.raining.simple_planner.domain.plan.dto.PlanUpdateRequestDTO;
 import com.raining.simple_planner.domain.plan.service.PlanCommandService;
@@ -125,5 +127,22 @@ public class PlanController {
         planCommandService.addDateInfo(requestDTO, userLoginId);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_DATE_INFO_ADD_SUCCESS));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResultResponse> deletePlan(
+        @RequestBody PlanDeleteRequestDTO requestDTO,
+        @RequestHeader("Authorization") String authorization
+    ) {
+        // 사용자 로그인 ID 추출
+        String userLoginId = TokenUtil.getUserLoginId(authorization);
+        
+        // 플랜 삭제
+        planCommandService.deletePlan(requestDTO, userLoginId);
+
+        // 그룹에서 플랜 ID 제거
+        groupCommandService.removePlan(requestDTO, userLoginId);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.PLAN_DELETE_SUCCESS));
     }
 }

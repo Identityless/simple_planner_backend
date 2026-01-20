@@ -21,6 +21,7 @@ import com.raining.simple_planner.domain.group.exception.GroupInvitationQueueNot
 import com.raining.simple_planner.domain.group.exception.GroupNoPermissionException;
 import com.raining.simple_planner.domain.group.repository.GroupInvitationQueueRepository;
 import com.raining.simple_planner.domain.group.repository.GroupRepository;
+import com.raining.simple_planner.domain.plan.dto.PlanDeleteRequestDTO;
 import com.raining.simple_planner.domain.user.document.User;
 import com.raining.simple_planner.domain.user.service.UserQueryService;
 
@@ -204,6 +205,7 @@ public class GroupCommandService {
      * @param userLoginId
      * @param groupOwnerChangeRequestDTO
      */
+    @Transactional
     public void changeOwner(String userLoginId, GroupOwnerChangeRequestDTO groupOwnerChangeRequestDTO) {
         Group group = groupRepository.findById(groupOwnerChangeRequestDTO.getGroupId()).orElseThrow(GroupNotFoundException::new);
         User newOwner = userQueryService.getUserByLoginId(groupOwnerChangeRequestDTO.getNewGroupOwnerLoginId());
@@ -229,6 +231,7 @@ public class GroupCommandService {
      * @param userLoginId
      * @param groupId
      */
+    @Transactional
     public List<String> deleteGroup(String userLoginId, String groupId) {
         Group group = groupRepository.findById(groupId).orElseThrow(GroupNotFoundException::new);
 
@@ -244,12 +247,37 @@ public class GroupCommandService {
         return group.getMemberIds();
     }
 
+    /**
+     * 그룹에 플랜 추가
+     * @param groupId
+     * @param planId
+     */
+    @Transactional
     public void addPlan(String groupId, String planId) {
         Group group = groupRepository.findById(groupId).orElseThrow(GroupNotFoundException::new);
 
         group.getPlanIds().add(planId);
 
         log.info("그룹에 플랜 추가 | Group ID : {}, Plan ID : {}", group.getId(), planId);
+    }
+
+    /**
+     * 그룹에서 플랜 제거
+     * @param requestDTO
+     * @param userLoginId
+     */
+    @Transactional
+    public void removePlan(PlanDeleteRequestDTO requestDTO, String userLoginId) {
+        Group group = groupRepository.findById(requestDTO.groupId()).orElseThrow(GroupNotFoundException::new);
+
+        // 그룹 오너의 요청인지 체크
+        if (!group.getOwnerId().equals(userLoginId)) {
+            throw new GroupNoPermissionException();
+        }
+
+        group.getPlanIds().remove(requestDTO.planId());
+
+        log.info("그룹에서 플랜 제거 | Group ID : {}, Plan ID : {}", group.getId(), requestDTO.planId());
     }
 
 }
